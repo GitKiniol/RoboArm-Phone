@@ -1,2 +1,2 @@
 # RoboArm-Phone
-#Folder zawiera kod aplikacji na telefon
+# Folder zawiera kod aplikacji na telefon
