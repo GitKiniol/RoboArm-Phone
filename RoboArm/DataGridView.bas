@@ -32,3 +32,5 @@ End Sub
 Public Sub GetBase As Panel
 	Return mBase
 End Sub
+
+'rozpoczęcie prac nad modułem 21-02-2022
