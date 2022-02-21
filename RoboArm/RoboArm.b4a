@@ -55,5 +55,13 @@ Sub Activity_Pause (UserClosed As Boolean)
 End Sub
 
 Sub Button1_Click
-	xui.MsgboxAsync("Hello world!", "B4X")
+	'xui.MsgboxAsync("Hello world!", "B4X")
+	Dim data As List
+	data.Initialize
+	data.Add("Oś A")
+	data.Add("27")
+	data.Add("235")
+	data.Add("1")
+	data.Add("0")
+	DataGridView1.InsertRow(data)
 End Sub

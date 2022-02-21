@@ -9,6 +9,8 @@ Version=11.2
 #DesignerProperty: Key: RowBackground, DisplayName: Tło wiersza, FieldType: Color, DefaultValue: 0xFFFFFFFF, Description: Kolor tła celek kolumny
 #DesignerProperty: Key: GapColor, DisplayName: Kolor linii tabeli, FieldType: Color, DefaultValue: 0xFF000000, Description: Kolor linii między wierszami i kolumnami
 #DesignerProperty: Key: ItemTextColor, DisplayName: Kolor wartości, FieldType: Color, DefaultValue: 0xFF000000, Description: Kolor napisów we wierszach tabeli
+#DesignerProperty: Key: HeaderBackground, DisplayName: Tło nagłówka, FieldType: Color, DefaultValue: 0xFF808080, Description: Kolor tła nagłówków
+#DesignerProperty: Key: HeaderTextColor, DisplayName: Kolor nagłówka, FieldType: Color, DefaultValue: 0xFF000000, Description: Kolor napisów w nagłówkach tabeli
 '#DesignerProperty: Key: BooleanExample, DisplayName: Boolean Example, FieldType: Boolean, DefaultValue: True, Description: Example of a boolean property.
 '#DesignerProperty: Key: IntExample, DisplayName: Int Example, FieldType: Int, DefaultValue: 10, MinRange: 0, MaxRange: 100, Description: Note that MinRange and MaxRange are optional.
 '#DesignerProperty: Key: StringWithListExample, DisplayName: String With List, FieldType: String, DefaultValue: Sunday, List: Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday
@@ -24,6 +26,8 @@ Sub Class_Globals
 	Private RowBackground As Int													'kolor tła celek kolumny
 	Private GapColor As Int															'kolor linii między wierszami i kolumnami
 	Private ItemTextColor As Int													'kolor napisów we wierszach tabeli
+	Private HeaderBackground As Int													'kolor tła nagłówków
+	Private HeaderTextColor As Int													'kolor napisów w nagłówkach
 	
 	Private HeadersTop = 2 As Int													'położenie nagłówków względem górnrj krawędzi kontrolki
 	
@@ -32,6 +36,10 @@ Sub Class_Globals
 	Private ColumnsCount = 5 As Int													'ilość kolumn
 	
 	Private RowHeight = 70 As Int													'wysokość wiersza
+	Private RowsGap = 4 As Int														'odstęp między wierszami
+	Private RowsCount = 1 As Int													'licznik wierszy
+	
+	Private Rows As Map																'dane zawarte w tabeli
 	
 End Sub
 
@@ -44,9 +52,12 @@ Public Sub DesignerCreateView (Base As Panel, Lbl As Label, Props As Map)
 	
 	mBase = Base																	'przypisanie panela dla kontrolki
 	
-	RowBackground = Props.Get("RowBackground")										'pobranie wartości właściwości koloru tła
+	Rows.Initialize																	'inicjalizacja danych tabeli
+	RowBackground = Props.Get("RowBackground")										'pobranie wartości właściwości koloru tła wierszy
 	GapColor = Props.Get("GapColor")												'pobranie wartości właściwości koloru linii
-	ItemTextColor = Props.Get("ItemTextColor")										'pobranie wartości właściwości koloru napisów
+	ItemTextColor = Props.Get("ItemTextColor")										'pobranie wartości właściwości koloru napisów we wierszach
+	HeaderBackground = Props.Get("HeaderBackground")								'pobranie wartości właściwości koloru tla nagłóków
+	HeaderTextColor = Props.Get("HeaderTextColor")									'pobranie wartości właściwości koloru napisów w nagłówkach
 	
 	mBase.Color = GapColor															'ustawienie koloru linii
 	ColumnWidth = mBase.Width / ColumnsCount - ColumnsGap 							'obliczenie szerokości kolumny
@@ -62,38 +73,88 @@ End Sub
 'procedura wstawia nagłówki do tabeli
 Private Sub InsertHeaders
 	
-	Dim hName As Label
-	Dim hAngle As Label
-	Dim hSpeed As Label
-	Dim hDir As Label
-	Dim hBlend As Label
-	Dim headers As List
+	mBase.Height = RowsGap + RowHeight								'ustawienie wysokości tabelki
 	
-	headers.Initialize
-	hName.Initialize("HeaderEvent")
-	hName.Text = "Oś"
-	headers.Add(hName)
-	hAngle.Initialize("HeaderEvent")
-	hAngle.Text = "Kąt"
-	headers.Add(hAngle)
-	hSpeed.Initialize("HeaderEvent")
-	hSpeed.Text = "Obroty"
-	headers.Add(hSpeed)
-	hDir.Initialize("HeaderEvent")
-	hDir.Text = "Kierunek"
-	headers.Add(hDir)
-	hBlend.Initialize("HeaderEvent")
-	hBlend.Text = "Blend"
-	headers.Add(hBlend)
+	Dim hName As Label												'deklaracja labelki nagłówka kolumny nazwy osi
+	Dim hAngle As Label												'deklaracja labelki nagłówka kolumny kąta osi
+	Dim hSpeed As Label												'deklaracja labelki nagłówka kolumny prędkości osi
+	Dim hDir As Label												'deklaracja labelki nagłówka kolumny kierunku osi
+	Dim hBlend As Label												'deklaracja labelki nagłówka kolumny miksowania ruchów
+	Dim headers As List												'deklaracja listy labelek nagłówków
+	
+	headers.Initialize												'inicjalizacja listy labelek
+	
+	hName.Initialize("HeaderEvent")									'inicjalizacja labelki
+	hAngle.Initialize("HeaderEvent")								'-- || --
+	hSpeed.Initialize("HeaderEvent")								'-- || --
+	hDir.Initialize("HeaderEvent")									'-- || --
+	hBlend.Initialize("HeaderEvent")								'-- || --
+	
+	hName.Text = " Oś"												'wstawienie napisu do labelki
+	hAngle.Text = " Kąt"												'-- || --
+	hSpeed.Text = " Obroty"											'-- || --
+	hDir.Text = " Kierunek"											'-- || --
+	hBlend.Text = " Blend"											'-- || --
+	
+	headers.Add(hName)												'wstawienie labelki do listy
+	headers.Add(hAngle)												'-- || --
+	headers.Add(hSpeed)												'-- || --
+	headers.Add(hDir)												'-- || --
+	headers.Add(hBlend)												'-- || --
 	
 	For i = 0 To ColumnsCount - 1
-		Dim h = headers.Get(i) As Label
-		h.Tag = ":header:"
-		h.Color = Colors.Gray
-		h.TextColor = Colors.Black
-		mBase.AddView(h, (ColumnWidth * i) + ((i + 1) * ColumnsGap), HeadersTop, ColumnWidth, RowHeight)
+		Dim h = headers.Get(i) As Label								'pobranie labelki z listy
+		h.Tag = ":header:"											'ustawienie tagu labelki
+		h.Color = HeaderBackground									'ustawienie koloru tła nagłówka
+		h.TextColor = HeaderTextColor								'ustawienie koloru tekstu w nagłówka
+		mBase.AddView(h, (ColumnWidth * i) + ((i + 1) * ColumnsGap), HeadersTop, ColumnWidth, RowHeight)	'wstawienie nagłówka do tabeli
 	Next
 	
 End Sub
 
-'rozpoczęcie prac nad modułem 21-02-2022
+'procedura wstawia wiersz danych do tabeli
+Public Sub InsertRow(RowData As List)
+
+	mBase.Height = RowsGap + RowHeight + mBase.Height				'ustawienie wysokości tabelki
+	Private row As Map												'deklaracja zmiennej danych wiersza
+	row.Initialize													'inicjalizacja danych wiersza
+	Dim tags As List												'deklaracja listy tagów dla celek tabeli
+	tags.Initialize													'inicjalizacja listy tagów
+	tags.Add("Name")												'wstawienie tagu nazwy do listy
+	tags.Add("Angle")												'wstawienie tagu kąta do listy
+	tags.Add("Speed")												'wstawienie tagu prędkości do listy
+	tags.Add("Dir")													'wstawienie tagu kierunku do listy
+	tags.Add("Blend")												'wstawienie tagu miksowania ruchów do listy
+	
+	Dim axisName = RowData.Get(0) As String							'pobranie nazwy osi z listy danych podanej jako parametr procedury
+	
+	For i = 0 To 3
+		row.Put(tags.Get(i), RowData.Get(i))						'zapis danych wiersza w warstwie danych (Key:tag, Value:RowData[i])
+		Dim item As Label											'deklaracja labelki do wyświetlania wartości w warstwie wizualnej
+		item.Initialize("ItemEvent")								'inicjalizacja labelki
+		item.Color = RowBackground									'ustawienie koloru tła labelki
+		item.TextColor = ItemTextColor								'ustawienie koloru tekstu w labelce
+		item.Gravity = Gravity.CENTER								'centrowanie tekstu
+		item.Text = RowData.Get(i)									'wstawienie do labelki tekstu z listy danych
+		item.Tag = tags.Get(i) & ":" & axisName & ":"				'ustawienie tagu
+		'wyświetlenie celki tabeli
+		mBase.AddView(item, (ColumnWidth * i) + ((i + 1) * ColumnsGap), (RowHeight * RowsCount) + (RowsCount * RowsGap), ColumnWidth, RowHeight)
+	Next
+	
+	Dim blendCheckBox As CheckBox									'deklaracja zmiennej do załączania/wyłączania miksowania ruchów
+	blendCheckBox.Initialize("BlendChecked")						'inicjalizacja checkbox'a
+	blendCheckBox.Tag = tags.Get(4) & ":" & axisName & ":"			'ustawienie tagu
+	blendCheckBox.Color = RowBackground								'ustawienie koloru tła
+	If RowData.Get(4) == "1" Then									'jeśli przekazana wartość miksowania = 1 to:
+		blendCheckBox.Checked = True								'właczenie miksowania ruchów
+	Else
+		blendCheckBox.Checked = False								'wyłączenie miksowania róchów
+	End If
+	'wyświetlenie celki tabeli
+	mBase.AddView(blendCheckBox, (ColumnWidth * 4) + ((4 + 1) * ColumnsGap), (RowHeight * RowsCount) + (RowsCount * RowsGap), ColumnWidth, RowHeight)
+	Rows.Put(RowData.Get(0), row)
+	RowsCount = RowsCount + 1
+	
+End Sub
+
+'rozpoczęcie prac nad modułem: 21-02-2022
