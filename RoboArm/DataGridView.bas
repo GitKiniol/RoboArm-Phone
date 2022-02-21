@@ -157,4 +157,36 @@ Public Sub InsertRow(RowData As List)
 	
 End Sub
 
+'procedura usuwa wskazany wiersz z tabeli
+Public Sub DeleteRow(Axis As String)
+	
+	Dim isRowDeleted As Boolean														'czy wiersz został usunięty
+	Dim keyAxis = "Oś " & Axis As String											'nazwa wiersza do zmodyfikowania
+	Dim deletedPosition = 0 As Int													'zmienna do zapamietywania pozycji top usuwanych elementów
+	
+	'usuwanie wizualnych elementóe tabeli
+	For Each item As View In mBase.GetAllViewsRecursive								'iteracja po elementach wizualnych panela
+		Dim tag = item.Tag As String												'pobranie ptagu elementu
+		If tag.Contains(":" & keyAxis & ":") Then									'jeśli tag pasuje do wzorca, to:
+			deletedPosition = item.Top												'ustaw pozycję usuwanych elementów
+			item.RemoveView															'usuń element z panela
+			isRowDeleted = True														'tak wiersz został usunięty
+		End If
+	Next
+	
+	If isRowDeleted == True Then
+		Rows.Remove(keyAxis)														'usuń dane wiersza
+		RowsCount = RowsCount - 1													'dekrementacja licznika wierszy
+	
+		'przesuwanie wierszy w górę
+		For Each item As View In mBase.GetAllViewsRecursive							'iteracja po elementach wizualnych panela
+			If item.Top > deletedPosition Then										'jesli element jest poniżej usuniętego, to:
+				item.Top = item.Top - (RowHeight + RowsGap)							'przesuń element w miejsce usuniętego
+			End If
+		Next
+		mBase.Height = mBase.Height - RowsGap - RowHeight							'ustawienie wysokości tabelki
+	End If
+	
+End Sub
+
 'rozpoczęcie prac nad modułem: 21-02-2022
