@@ -39,6 +39,7 @@ End Sub
 
 Sub Globals
 	'These global variables will be redeclared each time the activity is created.
+	Private DataGridView1 As DataGridView
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)

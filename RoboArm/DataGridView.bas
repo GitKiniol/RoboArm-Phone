@@ -6,17 +6,24 @@ Version=11.2
 @EndOfDesignText@
 'Custom View class 
 #Event: ExampleEvent (Value As Int)
-#DesignerProperty: Key: BooleanExample, DisplayName: Boolean Example, FieldType: Boolean, DefaultValue: True, Description: Example of a boolean property.
-#DesignerProperty: Key: IntExample, DisplayName: Int Example, FieldType: Int, DefaultValue: 10, MinRange: 0, MaxRange: 100, Description: Note that MinRange and MaxRange are optional.
-#DesignerProperty: Key: StringWithListExample, DisplayName: String With List, FieldType: String, DefaultValue: Sunday, List: Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday
-#DesignerProperty: Key: StringExample, DisplayName: String Example, FieldType: String, DefaultValue: Text
-#DesignerProperty: Key: ColorExample, DisplayName: Color Example, FieldType: Color, DefaultValue: 0xFFCFDCDC, Description: You can use the built-in color picker to find the color values.
-#DesignerProperty: Key: DefaultColorExample, DisplayName: Default Color Example, FieldType: Color, DefaultValue: Null, Description: Setting the default value to Null means that a nullable field will be displayed.
+#DesignerProperty: Key: RowBackground, DisplayName: Tło wiersza, FieldType: Color, DefaultValue: 0xFFFFFFFF, Description: Kolor tła celek kolumny
+#DesignerProperty: Key: GapColor, DisplayName: Kolor linii tabeli, FieldType: Color, DefaultValue: 0xFF000000, Description: Kolor linii między wierszami i kolumnami
+#DesignerProperty: Key: ItemTextColor, DisplayName: Kolor wartości, FieldType: Color, DefaultValue: 0xFF000000, Description: Kolor napisów we wierszach tabeli
+'#DesignerProperty: Key: BooleanExample, DisplayName: Boolean Example, FieldType: Boolean, DefaultValue: True, Description: Example of a boolean property.
+'#DesignerProperty: Key: IntExample, DisplayName: Int Example, FieldType: Int, DefaultValue: 10, MinRange: 0, MaxRange: 100, Description: Note that MinRange and MaxRange are optional.
+'#DesignerProperty: Key: StringWithListExample, DisplayName: String With List, FieldType: String, DefaultValue: Sunday, List: Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday
+'#DesignerProperty: Key: StringExample, DisplayName: String Example, FieldType: String, DefaultValue: Text
+'#DesignerProperty: Key: ColorExample, DisplayName: Color Example, FieldType: Color, DefaultValue: 0xFFCFDCDC, Description: You can use the built-in color picker to find the color values.
+'#DesignerProperty: Key: DefaultColorExample, DisplayName: Default Color Example, FieldType: Color, DefaultValue: Null, Description: Setting the default value to Null means that a nullable field will be displayed.
 Sub Class_Globals
 	Private mEventName As String 'ignore
 	Private mCallBack As Object 'ignore
 	Private mBase As Panel
 	Private Const DefaultColorConstant As Int = -984833 'ignore
+	
+	Private RowBackground As Int													'kolor tła celek kolumny
+	Private GapColor As Int															'kolor linii między wierszami i kolumnami
+	Private ItemTextColor As Int													'kolor napisów we wierszach tabeli
 	
 	Private HeadersTop = 2 As Int													'położenie nagłówków względem górnrj krawędzi kontrolki
 	
@@ -36,7 +43,15 @@ End Sub
 Public Sub DesignerCreateView (Base As Panel, Lbl As Label, Props As Map)
 	
 	mBase = Base																	'przypisanie panela dla kontrolki
-	ColumnWidth = (mBase / ColumnsCount) - (ColumnsCount * ColumnsGap)				'obliczenie szerokości kolumny
+	
+	RowBackground = Props.Get("RowBackground")										'pobranie wartości właściwości koloru tła
+	GapColor = Props.Get("GapColor")												'pobranie wartości właściwości koloru linii
+	ItemTextColor = Props.Get("ItemTextColor")										'pobranie wartości właściwości koloru napisów
+	
+	mBase.Color = GapColor															'ustawienie koloru linii
+	ColumnWidth = mBase.Width / ColumnsCount - ColumnsGap 							'obliczenie szerokości kolumny
+	
+	InsertHeaders																	'umieszczenie w kontrolce nagłówków tabeli
     
 End Sub
 
