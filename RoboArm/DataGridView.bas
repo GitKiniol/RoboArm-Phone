@@ -17,6 +17,15 @@ Sub Class_Globals
 	Private mCallBack As Object 'ignore
 	Private mBase As Panel
 	Private Const DefaultColorConstant As Int = -984833 'ignore
+	
+	Private HeadersTop = 2 As Int													'położenie nagłówków względem górnrj krawędzi kontrolki
+	
+	Private ColumnWidth As Int														'szerokość kolumny
+	Private ColumnsGap = 4 As Int													'odstęp między kolumnami
+	Private ColumnsCount = 5 As Int													'ilość kolumn
+	
+	Private RowHeight = 70 As Int													'wysokość wiersza
+	
 End Sub
 
 Public Sub Initialize (Callback As Object, EventName As String)
@@ -25,12 +34,51 @@ Public Sub Initialize (Callback As Object, EventName As String)
 End Sub
 
 Public Sub DesignerCreateView (Base As Panel, Lbl As Label, Props As Map)
-	mBase = Base
+	
+	mBase = Base																	'przypisanie panela dla kontrolki
+	ColumnWidth = (mBase / ColumnsCount) - (ColumnsCount * ColumnsGap)				'obliczenie szerokości kolumny
     
 End Sub
 
 Public Sub GetBase As Panel
 	Return mBase
+End Sub
+
+'procedura wstawia nagłówki do tabeli
+Private Sub InsertHeaders
+	
+	Dim hName As Label
+	Dim hAngle As Label
+	Dim hSpeed As Label
+	Dim hDir As Label
+	Dim hBlend As Label
+	Dim headers As List
+	
+	headers.Initialize
+	hName.Initialize("HeaderEvent")
+	hName.Text = "Oś"
+	headers.Add(hName)
+	hAngle.Initialize("HeaderEvent")
+	hAngle.Text = "Kąt"
+	headers.Add(hAngle)
+	hSpeed.Initialize("HeaderEvent")
+	hSpeed.Text = "Obroty"
+	headers.Add(hSpeed)
+	hDir.Initialize("HeaderEvent")
+	hDir.Text = "Kierunek"
+	headers.Add(hDir)
+	hBlend.Initialize("HeaderEvent")
+	hBlend.Text = "Blend"
+	headers.Add(hBlend)
+	
+	For i = 0 To ColumnsCount - 1
+		Dim h = headers.Get(i) As Label
+		h.Tag = ":header:"
+		h.Color = Colors.Gray
+		h.TextColor = Colors.Black
+		mBase.AddView(h, (ColumnWidth * i) + ((i + 1) * ColumnsGap), HeadersTop, ColumnWidth, RowHeight)
+	Next
+	
 End Sub
 
 'rozpoczęcie prac nad modułem 21-02-2022
