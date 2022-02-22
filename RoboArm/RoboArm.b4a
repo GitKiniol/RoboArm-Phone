@@ -42,6 +42,8 @@ Sub Globals
 	Private DataGridView1 As DataGridView
 	Private Button2 As Button
 	Private EditText1 As EditText
+	Private Button3 As Button
+	Private Button4 As Button
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
@@ -98,5 +100,17 @@ End Sub
 Private Sub Button2_Click 
 	
 	DataGridView1.DeleteRow(EditText1.Text)
+	
+End Sub
+
+Private Sub Button4_Click
+	
+	DataGridView1.SetItemValue("A", "Angle", EditText1.Text)
+	
+End Sub
+
+Private Sub Button3_Click
+	
+	EditText1.Text = DataGridView1.GetItem("A", "Speed")
 	
 End Sub

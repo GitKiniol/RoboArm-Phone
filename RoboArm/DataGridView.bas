@@ -41,6 +41,8 @@ Sub Class_Globals
 	
 	Private Rows As Map																'dane zawarte w tabeli
 	
+	Private Button3 As Button
+	Private Button4 As Button
 End Sub
 
 Public Sub Initialize (Callback As Object, EventName As String)
@@ -189,4 +191,40 @@ Public Sub DeleteRow(Axis As String)
 	
 End Sub
 
+'procedura pobiera wartość elementu który znajduje się we wierszu podanej Osi (np. A) oraz we wskazanej kolumnie
+Public Sub GetItem(Axis As String, Column As String) As String
+	
+	Dim itemValue As String															'zmienna do przechowywania pobranej wartości
+	Dim row = Rows.Get(("Oś " & Axis)) As Map										'odczyt wiersza danych wskazanej osi
+	itemValue = row.Get(Column)														'pobranie wartość ze wskazanej kolumny
+	Return itemValue																'zwrócenie odczytanej wartości
+	
+End Sub
+
+'procedura wstawia dane do wiersza wskazanej osi (np. Z) i podanej kolumny
+Public Sub SetItemValue(Axis As String, Column As String, Value As String) As Boolean
+	
+	Dim keyAxis = "Oś " & Axis As String											'nazwa wiersza do zmodyfikowania
+	Dim row = Rows.Get(keyAxis) As Map												'pobranie wiersza do modyfikacji
+	row.Put(Column, Value)															'zapis nowej wartości do wskazanej kolumny
+	
+	For Each item In mBase.GetAllViewsRecursive										'iteracja po elementach wizualnych panela
+		Dim it = item As Label														'pobranie pierwszego elementu panela
+		Dim tagitem = it.Tag As String												'odczyt tagu elementu
+		If tagitem.Contains(Column & ":" & keyAxis & ":") Then						'jeśli tag pasuje do wzorca, to:
+			it.Text = Value															'zmień zawartość elementu
+		End If
+	Next
+	
+	Return True
+End Sub
+
 'rozpoczęcie prac nad modułem: 21-02-2022
+
+Private Sub Button4_Click
+	
+End Sub
+
+Private Sub Button3_Click
+	
+End Sub
