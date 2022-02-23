@@ -10,6 +10,6 @@ ModuleClosedNodes0=1,2,8,9
 ModuleClosedNodes1=2,3,5,6,7
 ModuleClosedNodes2=
 ModuleClosedNodes3=1
-NavigationStack=Main,Process_Globals,14,4,Main,Button1_Click,64,6,Main,Button2_Click,80,4,DataGridView,DeleteRow,185,6,Wizualny projektant,Layout.bal,-100,6,DataGridView,Button3_Click,223,0,DataGridView,GetItem,192,0,Main,Button3_Click,94,1,Main,Button4_Click,88,1,DataGridView,SetItemValue,202,0
+NavigationStack=Main,Button1_Click,64,6,Main,Button2_Click,80,4,DataGridView,DeleteRow,185,6,Wizualny projektant,Layout.bal,-100,6,DataGridView,GetItem,192,0,Main,Button3_Click,94,1,Main,Button4_Click,88,1,DataGridView,SetItemValue,216,0,DataGridView,Class_Globals,36,0
 SelectedBuild=0
 VisibleModules=3,2,1

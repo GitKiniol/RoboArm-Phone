@@ -41,8 +41,6 @@ Sub Class_Globals
 	
 	Private Rows As Map																'dane zawarte w tabeli
 	
-	Private Button3 As Button
-	Private Button4 As Button
 End Sub
 
 Public Sub Initialize (Callback As Object, EventName As String)
@@ -220,11 +218,3 @@ Public Sub SetItemValue(Axis As String, Column As String, Value As String) As Bo
 End Sub
 
 'rozpoczęcie prac nad modułem: 21-02-2022
-
-Private Sub Button4_Click
-	
-End Sub
-
-Private Sub Button3_Click
-	
-End Sub
