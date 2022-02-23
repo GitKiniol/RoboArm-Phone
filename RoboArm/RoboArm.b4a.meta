@@ -10,6 +10,6 @@ ModuleClosedNodes0=2
 ModuleClosedNodes1=1,2,3,4,5,6,7,8
 ModuleClosedNodes2=
 ModuleClosedNodes3=1
-NavigationStack=Wizualny projektant,splashscreen.bal,-100,1,Main,Activity_Pause,35,0,Main,Activity_Create,27,0,Main,Process_Globals,17,6,Main,SwitchScreenTimer_Tick,55,0,Wizualny projektant,ConnectScreen.bal,-100,6,Main,BtConnectButton_Click,75,0,Main,Globals,26,6
+NavigationStack=Wizualny projektant,splashscreen.bal,-100,1,Main,Activity_Pause,35,0,Main,Process_Globals,17,6,Main,Globals,23,6,Wizualny projektant,ConnectScreen.bal,-100,6,Main,SwitchScreenTimer_Tick,56,2,Main,Activity_Create,42,5
 SelectedBuild=0
 VisibleModules=3,2,1

@@ -82,7 +82,8 @@ End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
 	
-	AutoSwitchScreenTimer.Initialize("SwitchScreenTimer", 5)							'incjalizacja timera prełączającego SplashScreen na ConnectScreen
+	AutoSwitchScreenTimer.Initialize("SwitchScreenTimer", 3000)							'incjalizacja timera prełączającego SplashScreen na ConnectScreen
+	AutoSwitchScreenTimer.Enabled = True												'uruchomienie timera
 	Activity.LoadLayout("SplashScreen")													'ekran powitalny
 	
 End Sub
@@ -97,11 +98,11 @@ End Sub
 
 Sub SwitchScreenTimer_Tick
 	
+	AutoSwitchScreenTimer.Enabled = False												'zatrzymanie timera
 	Activity.RemoveAllViews																'usunięcie wyświetlanych elementów
-	'Activity.LoadLayout("ConectionScreen")												'załaduj ekran nawiązywania połączenia
+	Activity.LoadLayout("ConnectScreen")												'załaduj ekran nawiązywania połączenia
 	
 End Sub
-
 
 Private Sub TaskSetupButton_Click
 	
