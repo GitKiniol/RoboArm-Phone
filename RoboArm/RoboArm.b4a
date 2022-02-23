@@ -1,14 +1,34 @@
 ﻿Build1=Default,b4a.example
 File1=AppIcon.png
-File2=DefaultButtonImage.png
-File3=Layout.bal
-File4=splashscreen.bal
-File5=SplashScreen.png
+File10=SearchBtIco.png
+File11=splashscreen.bal
+File12=SplashScreen.png
+File13=TaskScreenIco.png
+File14=wireleft.png
+File15=wireright.png
+File2=bluetoothadaptericon.png
+File3=ConnectScreen.bal
+File4=DefaultButtonImage.png
+File5=DriverConnectIco.png
+File6=DriverDisConnectIco.png
+File7=Layout.bal
+File8=phoneicon2d.png
+File9=ramierobota2d.png
 FileGroup1=Default Group
+FileGroup10=Default Group
+FileGroup11=Default Group
+FileGroup12=Default Group
+FileGroup13=Default Group
+FileGroup14=Default Group
+FileGroup15=Default Group
 FileGroup2=Default Group
 FileGroup3=Default Group
 FileGroup4=Default Group
 FileGroup5=Default Group
+FileGroup6=Default Group
+FileGroup7=Default Group
+FileGroup8=Default Group
+FileGroup9=Default Group
 Group=Default Group
 Library1=core
 Library2=xui
@@ -16,7 +36,7 @@ ManifestCode='This code will be applied to the manifest file during compilation.
 Module1=DataGridView
 Module2=ImageButton
 Module3=Starter
-NumberOfFiles=5
+NumberOfFiles=15
 NumberOfLibraries=2
 NumberOfModules=3
 Version=11.2
@@ -46,7 +66,18 @@ End Sub
 
 Sub Globals
 	'These global variables will be redeclared each time the activity is created.
-
+	
+	Private BtAdapterIcon As ImageView													'obrazek adaptera bluetooth
+	Private PhoneIcon As ImageView														'obrazek telefonu
+	Private RobotIcon As ImageView														'obrazek robota
+	Private WireLeftIcon As ImageView													'obrazek kabla z wtyczką po lewej stronie
+	Private WireRightIcon As ImageView													'obrazek kabla z wtyczką po prawej stronie
+	
+	Private BtConnectButton As ImageButton												'przycisk wyszukiwania i ustanawiania połączenia z adapterem bluetooth
+	Private DriverConnectButton As ImageButton											'przycisk połączenia ze sterownikiem
+	Private DriverDisConnectButton As ImageButton										'przycisk do odłączania sterownika
+	Private TaskSetupButton As ImageButton												'przełączenie na ekran ustawień parametrów ruchu
+	
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
@@ -71,3 +102,19 @@ Sub SwitchScreenTimer_Tick
 	
 End Sub
 
+
+Private Sub TaskSetupButton_Click
+	
+End Sub
+
+Private Sub DriverDisConnectButton_Click
+	
+End Sub
+
+Private Sub DriverConnectButton_Click
+	
+End Sub
+
+Private Sub BtConnectButton_Click
+	
+End Sub

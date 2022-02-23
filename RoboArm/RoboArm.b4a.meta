@@ -10,6 +10,6 @@ ModuleClosedNodes0=2
 ModuleClosedNodes1=1,2,3,4,5,6,7,8
 ModuleClosedNodes2=
 ModuleClosedNodes3=1
-NavigationStack=DataGridView,GetItem,192,0,DataGridView,Class_Globals,13,0,DataGridView,SetItemValue,199,6,Wizualny projektant,Layout.bal,-100,6,Wizualny projektant,splashscreen.bal,-100,1,Main,Globals,20,0,Main,Activity_Pause,35,0,Main,SwitchScreenTimer_Tick,45,0,Main,Activity_Create,27,0,Main,Process_Globals,19,6
+NavigationStack=Wizualny projektant,splashscreen.bal,-100,1,Main,Activity_Pause,35,0,Main,Activity_Create,27,0,Main,Process_Globals,17,6,Main,SwitchScreenTimer_Tick,55,0,Wizualny projektant,ConnectScreen.bal,-100,6,Main,BtConnectButton_Click,75,0,Main,Globals,26,6
 SelectedBuild=0
 VisibleModules=3,2,1
