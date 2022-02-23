@@ -2,9 +2,13 @@
 File1=AppIcon.png
 File2=DefaultButtonImage.png
 File3=Layout.bal
+File4=splashscreen.bal
+File5=SplashScreen.png
 FileGroup1=Default Group
 FileGroup2=Default Group
 FileGroup3=Default Group
+FileGroup4=Default Group
+FileGroup5=Default Group
 Group=Default Group
 Library1=core
 Library2=xui
@@ -12,7 +16,7 @@ ManifestCode='This code will be applied to the manifest file during compilation.
 Module1=DataGridView
 Module2=ImageButton
 Module3=Starter
-NumberOfFiles=3
+NumberOfFiles=5
 NumberOfLibraries=2
 NumberOfModules=3
 Version=11.2
@@ -35,6 +39,9 @@ Sub Process_Globals
 	'These global variables will be declared once when the application starts.
 	'These variables can be accessed from all modules.
 	Private xui As XUI
+	
+	Private AutoSwitchScreenTimer As Timer												'timer odlicza czas trwania splash screena i przełacza na ekran nawiązywania połączenia
+	
 End Sub
 
 Sub Globals
@@ -43,7 +50,10 @@ Sub Globals
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
-	Activity.LoadLayout("Layout")
+	
+	AutoSwitchScreenTimer.Initialize("SwitchScreenTimer", 5)							'incjalizacja timera prełączającego SplashScreen na ConnectScreen
+	Activity.LoadLayout("SplashScreen")													'ekran powitalny
+	
 End Sub
 
 Sub Activity_Resume
@@ -52,5 +62,12 @@ End Sub
 
 Sub Activity_Pause (UserClosed As Boolean)
 
+End Sub
+
+Sub SwitchScreenTimer_Tick
+	
+	Activity.RemoveAllViews																'usunięcie wyświetlanych elementów
+	'Activity.LoadLayout("ConectionScreen")												'załaduj ekran nawiązywania połączenia
+	
 End Sub
 
