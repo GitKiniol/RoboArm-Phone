@@ -204,17 +204,22 @@ Public Sub SetItemValue(Axis As String, Column As String, Value As String) As Bo
 	
 	Dim keyAxis = "Oś " & Axis As String											'nazwa wiersza do zmodyfikowania
 	Dim row = Rows.Get(keyAxis) As Map												'pobranie wiersza do modyfikacji
-	row.Put(Column, Value)															'zapis nowej wartości do wskazanej kolumny
+	If row.IsInitialized Then														'sprawdzenie czy w tabeli istnieje podany wiersz
+		row.Put(Column, Value)														'zapis nowej wartości do wskazanej kolumny
 	
-	For Each item In mBase.GetAllViewsRecursive										'iteracja po elementach wizualnych panela
-		Dim it = item As Label														'pobranie pierwszego elementu panela
-		Dim tagitem = it.Tag As String												'odczyt tagu elementu
-		If tagitem.Contains(Column & ":" & keyAxis & ":") Then						'jeśli tag pasuje do wzorca, to:
-			it.Text = Value															'zmień zawartość elementu
-		End If
-	Next
+		For Each item In mBase.GetAllViewsRecursive									'iteracja po elementach wizualnych panela
+			Dim it = item As Label													'pobranie pierwszego elementu panela
+			Dim tagitem = it.Tag As String											'odczyt tagu elementu
+			If tagitem.Contains(Column & ":" & keyAxis & ":") Then					'jeśli tag pasuje do wzorca, to:
+				it.Text = Value														'zmień zawartość elementu
+			End If
+		Next
 	
-	Return True
+		Return True
+		
+	Else
+		Return False	
+	End If
 End Sub
 
 'rozpoczęcie prac nad modułem: 21-02-2022

@@ -39,11 +39,7 @@ End Sub
 
 Sub Globals
 	'These global variables will be redeclared each time the activity is created.
-	Private DataGridView1 As DataGridView
-	Private Button2 As Button
-	Private EditText1 As EditText
-	Private Button3 As Button
-	Private Button4 As Button
+
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
@@ -58,59 +54,3 @@ Sub Activity_Pause (UserClosed As Boolean)
 
 End Sub
 
-Sub Button1_Click
-	'xui.MsgboxAsync("Hello world!", "B4X")
-	Dim data As List
-	data.Initialize
-	data.Add("Oś A")
-	data.Add("27")
-	data.Add("235")
-	data.Add("1")
-	data.Add("0")
-	DataGridView1.InsertRow(data)
-	
-	Dim data2 As List
-	data2.Initialize
-	data2.Add("Oś B")
-	data2.Add("27")
-	data2.Add("235")
-	data2.Add("1")
-	data2.Add("0")
-	DataGridView1.InsertRow(data2)
-	
-	Dim data3 As List
-	data3.Initialize
-	data3.Add("Oś C")
-	data3.Add("27")
-	data3.Add("235")
-	data3.Add("1")
-	data3.Add("0")
-	DataGridView1.InsertRow(data3)
-	
-	Dim data4 As List
-	data4.Initialize
-	data4.Add("Oś Z")
-	data4.Add("27")
-	data4.Add("235")
-	data4.Add("1")
-	data4.Add("0")
-	DataGridView1.InsertRow(data4)
-End Sub
-
-Private Sub Button2_Click 
-	
-	DataGridView1.DeleteRow(EditText1.Text)
-	
-End Sub
-
-Private Sub Button4_Click
-	
-	DataGridView1.SetItemValue("A", "Angle", EditText1.Text)
-	
-End Sub
-
-Private Sub Button3_Click
-	
-	EditText1.Text = DataGridView1.GetItem("A", "Speed")
-	
-End Sub

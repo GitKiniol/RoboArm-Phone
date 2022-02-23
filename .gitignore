@@ -1,4 +1,5 @@
 #B4a
+RoboArm/AutoBackups/*.zip
 bin/
 gen/
 src/
