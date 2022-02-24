@@ -60,31 +60,31 @@ Sub Process_Globals
 	'These variables can be accessed from all modules.
 	Private xui As XUI
 	
-	Private AutoSwitchScreenTimer As Timer												'timer odlicza czas trwania splash screena i przełacza na ekran nawiązywania połączenia
+	Private AutoSwitchScreenTimer As Timer													'timer odlicza czas trwania splash screena i przełacza na ekran nawiązywania połączenia
 	
 End Sub
 
 Sub Globals
 	'These global variables will be redeclared each time the activity is created.
 	
-	Private BtAdapterIcon As ImageView													'obrazek adaptera bluetooth
-	Private PhoneIcon As ImageView														'obrazek telefonu
-	Private RobotIcon As ImageView														'obrazek robota
-	Private WireLeftIcon As ImageView													'obrazek kabla z wtyczką po lewej stronie
-	Private WireRightIcon As ImageView													'obrazek kabla z wtyczką po prawej stronie
+	Private BtAdapterIcon As ImageView														'obrazek adaptera bluetooth
+	Private PhoneIcon As ImageView															'obrazek telefonu
+	Private RobotIcon As ImageView															'obrazek robota
+	Private WireLeftIcon As ImageView														'obrazek kabla z wtyczką po lewej stronie
+	Private WireRightIcon As ImageView														'obrazek kabla z wtyczką po prawej stronie
 	
-	Private BtConnectButton As ImageButton												'przycisk wyszukiwania i ustanawiania połączenia z adapterem bluetooth
-	Private DriverConnectButton As ImageButton											'przycisk połączenia ze sterownikiem
-	Private DriverDisConnectButton As ImageButton										'przycisk do odłączania sterownika
-	Private TaskSetupButton As ImageButton												'przełączenie na ekran ustawień parametrów ruchu
+	Private BtConnectButton As ImageButton													'przycisk wyszukiwania i ustanawiania połączenia z adapterem bluetooth
+	Private DriverConnectButton As ImageButton												'przycisk połączenia ze sterownikiem
+	Private DriverDisConnectButton As ImageButton											'przycisk do odłączania sterownika
+	Private TaskSetupButton As ImageButton													'przełączenie na ekran ustawień parametrów ruchu
 	
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
 	
-	AutoSwitchScreenTimer.Initialize("SwitchScreenTimer", 3000)							'incjalizacja timera prełączającego SplashScreen na ConnectScreen
-	AutoSwitchScreenTimer.Enabled = True												'uruchomienie timera
-	Activity.LoadLayout("SplashScreen")													'ekran powitalny
+	AutoSwitchScreenTimer.Initialize("SwitchScreenTimer", 3000)								'incjalizacja timera prełączającego SplashScreen na ConnectScreen
+	AutoSwitchScreenTimer.Enabled = True													'uruchomienie timera
+	Activity.LoadLayout("SplashScreen")														'ekran powitalny
 	
 End Sub
 
@@ -98,9 +98,14 @@ End Sub
 
 Sub SwitchScreenTimer_Tick
 	
-	AutoSwitchScreenTimer.Enabled = False												'zatrzymanie timera
-	Activity.RemoveAllViews																'usunięcie wyświetlanych elementów
-	Activity.LoadLayout("ConnectScreen")												'załaduj ekran nawiązywania połączenia
+	AutoSwitchScreenTimer.Enabled = False														'zatrzymanie timera
+	Activity.RemoveAllViews																		'usunięcie wyświetlanych elementów
+	Activity.LoadLayout("ConnectScreen")														'załaduj ekran nawiązywania połączenia
+	BtConnectButton.SetImage(LoadBitmap(File.DirAssets, "SearchBtIco.png"))					'ustawienie ikony przycisku połączenie z bt
+	DriverConnectButton.SetImage(LoadBitmap(File.DirAssets, "DriverConnectIco.png"))		'ustawienie ikony przycisku połaczenia ze sterownikiem
+	DriverDisConnectButton.SetImage(LoadBitmap(File.DirAssets, "DriverDisConnectIco.png"))	'ustawienie ikony przycisku odłączania od sterownika
+	TaskSetupButton.SetImage(LoadBitmap(File.DirAssets, "TaskScreenIco.png"))				'ustawienie ikony przycisku przełączającego na ekran ustawień parametrów ruchu osi
+	 
 	
 End Sub
 

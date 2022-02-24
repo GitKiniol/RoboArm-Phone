@@ -57,13 +57,13 @@ Public Sub DesignerCreateView (Base As Panel, Lbl As Label, Props As Map)
 	
 	Dim imageX = Base.Width / 100 * 2 As Int									'pozycja obrazka w osi X
 	Dim imageY = Base.Height / 100 As Int										'pozycja obrazka w osi Y
-	Dim imageWidth = Base.Width / 100 * 23 As Int								'szerokość obrazka
+	Dim imageWidth = Base.Width / 100 * 15 As Int								'szerokość obrazka
 	Dim imageHeight = Base.Height / 100 * 96 As Int								'wysokość obrazka
 	
-	Dim textX = Base.Width / 100 * 27 As Int									'pozycja obrazka w osi X
-	Dim textY = Base.Height / 100 * ButtonTextPos As Int						'pozycja obrazka w osi Y
-	Dim textWidth = Base.Width / 100 * 71 As Int								'szerokość obrazka
-	Dim textHeight = Base.Height / 100 * 96 As Int								'wysokość obrazka
+	Dim textX = Base.Width / 100 * 27 As Int									'pozycja tekstu w osi X
+	Dim textY = Base.Height / 100 * ButtonTextPos As Int						'pozycja tekstu w osi Y
+	Dim textWidth = Base.Width / 100 * 71 As Int								'szerokość tekstu
+	Dim textHeight = Base.Height / 100 * 96 As Int								'wysokość tekstu
 	
 	Base.Color = FrameColor														'ustawienie koloru ramki
 	ButtonPanel.Color = BackgroundColor											'ustawienie koloru tła
