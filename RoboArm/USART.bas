@@ -6,7 +6,7 @@ Version=11.2
 @EndOfDesignText@
 Sub Class_Globals
 	
-	Private BtAdapter As BluetoothAdmin
+	Private Adapter As BluetoothAdmin
 	Private CommPort As Serial
 	Private AsyncText As AsyncStreamsText
 	
