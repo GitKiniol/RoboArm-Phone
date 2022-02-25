@@ -1,11 +1,13 @@
 ﻿Build1=Default,b4a.example
 File1=AppIcon.png
-File10=SearchBtIco.png
-File11=splashscreen.bal
-File12=SplashScreen.png
-File13=TaskScreenIco.png
-File14=wireleft.png
-File15=wireright.png
+File10=ramierobota2d.png
+File11=SearchBtIco.png
+File12=splashscreen.bal
+File13=SplashScreen.png
+File14=TaskScreenIco.png
+File15=Warning.png
+File16=wireleft.png
+File17=wireright.png
 File2=bluetoothadaptericon.png
 File3=ConnectScreen.bal
 File4=DefaultButtonImage.png
@@ -13,7 +15,7 @@ File5=DriverConnectIco.png
 File6=DriverDisConnectIco.png
 File7=Layout.bal
 File8=phoneicon2d.png
-File9=ramierobota2d.png
+File9=Question.png
 FileGroup1=Default Group
 FileGroup10=Default Group
 FileGroup11=Default Group
@@ -21,6 +23,8 @@ FileGroup12=Default Group
 FileGroup13=Default Group
 FileGroup14=Default Group
 FileGroup15=Default Group
+FileGroup16=Default Group
+FileGroup17=Default Group
 FileGroup2=Default Group
 FileGroup3=Default Group
 FileGroup4=Default Group
@@ -31,14 +35,17 @@ FileGroup8=Default Group
 FileGroup9=Default Group
 Group=Default Group
 Library1=core
-Library2=xui
+Library2=serial
+Library3=xui
+Library4=randomaccessfile
 ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: https://www.b4x.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="14" android:targetSdkVersion="29"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~CreateResourceFromFile(Macro, Themes.LightTheme)~\n~'End of default text.~\n~
-Module1=DataGridView
-Module2=ImageButton
-Module3=Starter
-NumberOfFiles=15
-NumberOfLibraries=2
-NumberOfModules=3
+Module1=AsyncStreamsText
+Module2=DataGridView
+Module3=ImageButton
+Module4=Starter
+NumberOfFiles=17
+NumberOfLibraries=4
+NumberOfModules=4
 Version=11.2
 @EndOfDesignText@
 #Region  Project Attributes 
@@ -60,6 +67,9 @@ Sub Process_Globals
 	'These variables can be accessed from all modules.
 	Private xui As XUI
 	
+	Private ComPort As Serial																'zmienna do obsługi portu szeregowego
+	Private Bluetooth As BluetoothAdmin														'zmienna do obsługi sprzętowego modułu Bluetooth
+	Private AsyncData As AsyncStreamsText													'zmienna do odbioru i wysyłania danych
 	Private AutoSwitchScreenTimer As Timer													'timer odlicza czas trwania splash screena i przełacza na ekran nawiązywania połączenia
 	
 End Sub
@@ -78,17 +88,23 @@ Sub Globals
 	Private DriverDisConnectButton As ImageButton											'przycisk do odłączania sterownika
 	Private TaskSetupButton As ImageButton													'przełączenie na ekran ustawień parametrów ruchu
 	
+	Type Device (Name As String, MAC As String)												'typ danych opisujący zewnętrzne urządzenie bluetooth
+	Private AvailableDevices As List														'lista dostępnych urządzeń
+	
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
 	
 	AutoSwitchScreenTimer.Initialize("SwitchScreenTimer", 3000)								'incjalizacja timera prełączającego SplashScreen na ConnectScreen
 	AutoSwitchScreenTimer.Enabled = True													'uruchomienie timera
+	BluetoohInit																			'inicjalizacja komunikacji
 	Activity.LoadLayout("SplashScreen")														'ekran powitalny
 	
 End Sub
 
 Sub Activity_Resume
+	
+	BluetoothRun																			'uruchomienie bluetooth
 
 End Sub
 
@@ -96,11 +112,15 @@ Sub Activity_Pause (UserClosed As Boolean)
 
 End Sub
 
+#Region ConnectionScreen
+
+#Region ButtonEvents
+
 Sub SwitchScreenTimer_Tick
 	
-	AutoSwitchScreenTimer.Enabled = False														'zatrzymanie timera
-	Activity.RemoveAllViews																		'usunięcie wyświetlanych elementów
-	Activity.LoadLayout("ConnectScreen")														'załaduj ekran nawiązywania połączenia
+	AutoSwitchScreenTimer.Enabled = False													'zatrzymanie timera
+	Activity.RemoveAllViews																	'usunięcie wyświetlanych elementów
+	Activity.LoadLayout("ConnectScreen")													'załaduj ekran nawiązywania połączenia
 	BtConnectButton.SetImage(LoadBitmap(File.DirAssets, "SearchBtIco.png"))					'ustawienie ikony przycisku połączenie z bt
 	DriverConnectButton.SetImage(LoadBitmap(File.DirAssets, "DriverConnectIco.png"))		'ustawienie ikony przycisku połaczenia ze sterownikiem
 	DriverDisConnectButton.SetImage(LoadBitmap(File.DirAssets, "DriverDisConnectIco.png"))	'ustawienie ikony przycisku odłączania od sterownika
@@ -123,4 +143,103 @@ End Sub
 
 Private Sub BtConnectButton_Click
 	
+	BluetoothSerch
+	
 End Sub
+
+#End Region
+
+#Region BluetoothEvents
+
+Private Sub BluetoothConnectWindow(CurrentDevice As Device) As Object
+	
+	'procedura wyświetla okienko z zapytanie czy podłączyć urządzenie
+	Return xui.Msgbox2Async("Podłączyć adapter : @ ?".Replace("@", CurrentDevice.Name), "ŁĄCZENIE", "TAK", "", "NIE", LoadBitmap(File.DirAssets, "Question.png"))
+	
+End Sub
+
+Private Sub BluetoothError(Message As String)
+	
+	'procedura wyświetla komunikat błędu uruchomienia modułu bluetooth
+	xui.Msgbox2Async(Message, "BLUETOOTH", "", "", "OK", LoadBitmap(File.DirAssets, "Warning.png"))
+	
+End Sub
+
+Private Sub BluetoohInit
+	
+	Bluetooth.Initialize("Bluetooth")														'inicjalizacja modułu bluetooth
+	ComPort.Initialize("ComPort")															'inicjlizacja portu szeregowego
+	
+End Sub
+
+Private Sub BluetoothRun
+	
+	If Bluetooth.IsEnabled = False Then														'czy bluetooth jest załączony ?
+		If Bluetooth.Enable = False Then														'jeśli nie to go włącz. Czy udało się włączyć ?
+			BluetoothError("Problem z uruchomieniem !")											'jeśli nie to komunikat błędu
+		Else
+			ToastMessageShow("Włączam adapter blutooth...", False)								'jeśli tak to komunikat ok
+		End If
+	Else
+		Bluetooth_StateChanged(Bluetooth.STATE_ON, 0)										'jeśli tak to zmien stan na załączony
+	End If
+	
+End Sub
+
+Private Sub BluetoothSerch
+	
+	AvailableDevices.Initialize														'inicjalizacja listy urządzeń
+	
+	If Bluetooth.StartDiscovery = False Then										'jeśli proces poszukiwania urochomiomy poprawnie to:		
+		BluetoothError("Problem zuruchomieniem wyszukiwania !")						'wyświetl informacje o błędzie poszukiwaniau urządzeń
+	Else																			'wprzeciwnym razie:		
+		ToastMessageShow("Poszukiwanie urządzeń", False)							'wyświetl informacje o poszukiwaniu urządzeń
+	End If
+	
+End Sub
+
+Private Sub BluetoothConnect(DeviceName As String)
+	
+	ProgressDialogHide																'ukrycie okna postępu wyszukiwania
+	
+	For i = 0 To AvailableDevices.Size - 1
+		Dim DeviceInList = AvailableDevices.Get(i) As Device						'pobierz pierwsze na liscie urządzenie 
+		If DeviceInList.Name == DeviceName Then										'jeśli nazwa pasuje do wzorca to:
+			Wait For (BluetoothConnectWindow(DeviceInList)) Msg_Res (Result As Int)	'wyświelt okno połączenia i poczekaj na decyzję
+			If xui.DialogResponse_Positive == Result Or True Then							'jeśli decyzja twierdząca to:
+				'podłącz do urządzenia poprzez port szeregowy
+			End If
+		End If
+	Next
+	
+End Sub
+
+Private Sub Bluetooth_DiscoveryStarted
+	
+	ProgressDialogShow("Ilość urządzeń ... 0")										'okno postępu wyszukiwania
+	
+End Sub
+
+Private Sub Bluetooth_DeviceFound (Name As String, MacAddress As String)
+	
+	Dim device As Device															'wykryte urządzenie
+	device.Name = Name																'nazwa wykrytego urządzenia
+	device.MAC = MacAddress															'macadres wykrytego urządzenia
+	AvailableDevices.Add(device)													'dodania wykrytego urządzenia do listy
+	ProgressDialogShow("Ilość urządzeń ... @".Replace("@", AvailableDevices.Size))	'aktualizacja okna postępu wyszukiwania
+	
+End Sub
+
+Private Sub Bluetooth_DiscoveryFinished
+	
+	BluetoothConnect("RoboArm")
+	
+End Sub
+
+Private Sub Bluetooth_StateChanged (NewState As Int, OldState As Int)
+	
+End Sub
+
+#End Region
+
+#End Region
