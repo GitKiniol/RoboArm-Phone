@@ -1,4 +1,4 @@
-﻿ModuleBookmarks0=
+﻿ModuleBookmarks0=74
 ModuleBookmarks1=
 ModuleBookmarks2=
 ModuleBookmarks3=
@@ -15,7 +15,7 @@ ModuleClosedNodes1=
 ModuleClosedNodes2=1,2,3,4,5,6,7,8
 ModuleClosedNodes3=
 ModuleClosedNodes4=1
-ModuleClosedNodes5=
-NavigationStack=Wizualny projektant,splashscreen.bal,-100,1,Main,Activity_Pause,35,0,Wizualny projektant,ConnectScreen.bal,-100,6,ImageButton,DesignerCreateView,59,4,Main,Process_Globals,19,6,Main,Activity_Create,43,5,Main,SwitchScreenTimer_Tick,59,6,USART,Class_Globals,2,0,Main,Globals,28,6
+ModuleClosedNodes5=2
+NavigationStack=USART,Connect,105,6,USART,Send,105,6,USART,Run,56,0,USART,Serch,66,0,USART,Adapter_DeviceFound,121,0,USART,AsyncText_Terminated,158,6,USART,Initialize,16,6,USART,CommPort_Connected,153,6,USART,Class_Globals,12,6,USART,AsyncText_NewText,171,6
 SelectedBuild=0
 VisibleModules=4,3,2,1,5
