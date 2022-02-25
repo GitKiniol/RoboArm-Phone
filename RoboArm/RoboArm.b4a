@@ -126,7 +126,7 @@ End Sub
 
 Private Sub TaskSetupButton_Click
 	
-	xui.Msgbox2Async("", "BLUETOOTH", "", "", "OK", LoadBitmap(File.DirAssets, "Error.png"))
+	
 	
 End Sub
 

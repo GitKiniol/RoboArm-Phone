@@ -16,7 +16,7 @@ Sub Class_Globals
 	Private AsyncText As AsyncStreamsText								'komunikacja asynchroniczna
 	
 	Public IsAdapterConnected As Boolean								'czy zewnętrzny moduł bluetooth jest podłączony?
-	Public ReceivedText as String										'trkst odebrany przez bluetooth
+	Public ReceivedText As String										'trkst odebrany przez bluetooth
 	
 End Sub
 
@@ -91,23 +91,19 @@ Private Sub Connect(DeviceName As String)
 	ProgressDialogHide																'ukrycie okna postępu wyszukiwania	
 	
 	Dim DeviceInList As Device														'kompatybilne urządzenie
-	Dim ConnectingQuestion As String												'utwórz zmienna zapytania
+	Dim IsFoundNotCompatibile = False As Boolean									'czy znaleziono niekompatybilne urządzenia
 	
 	For i = 0 To AvailableDevices.Size - 1
 		DeviceInList = AvailableDevices.Get(i)										'pobierz pierwsze na liscie urządzenie
+		IsFoundNotCompatibile = True												'ustawienie flagi niekompatybilnych urządzeń
 		If DeviceInList.Name == DeviceName Then										'jeśli nazwa pasuje do wzorca to:
-			ConnectingQuestion = "Czy podłączyć urządzenie : " & DeviceName			'stwórz treść zapytania o podłączenie
-			Wait For (AskWindow(ConnectingQuestion)) Msg_Res (Result As Int)		'wyświetl okno zapytania i poczekaj na decyzję
-			If xui.DialogResponse_Positive == Result Then							'jeśli decyzja twierdząca to:
-				CommPort.Connect(DeviceInList.MAC)									'podłącz do urządzenia poprzez port szeregowy
-				ProgressDialogShow("Próba podłaczenia urządzenia : " & DeviceName)	'wyświetl okno informujące o prcesi podłączania
-			Else
-				InfoWindow("Połaczenie anulowane")									'informacja o zaniechaniu podłaczenia
-			End If
+			IsFoundNotCompatibile = False											'zerowanie flagi niekompatybilnych urządzeń
+			CommPort.Connect(DeviceInList.MAC)										'podłącz do urządzenia poprzez port szeregowy
+			ProgressDialogShow("Próba podłaczenia urządzenia : " & DeviceName)		'wyświetl okno informujące o prcesi podłączania
 		End If
 	Next
 	
-	If DeviceInList.IsInitialized == False Then										'jeśli nie odnaleziono żadnego urządzenia:
+	If AvailableDevices.Size == 0 or IsFoundNotCompatibile Then						'jeśli nie odnaleziono żadnego urządzenia:
 		InfoWindow("Nie odnaleziono kompatybilnego urządzenia")						'wyświetl komunikat o braku urządzeń
 	End If
 	
@@ -141,7 +137,7 @@ End Sub
 
 Private Sub Adapter_DiscoveryFinished
 	
-	Connect("RoboArm")																'podłącz urządzenie RoboArm
+	Connect("HC-05")																'podłącz urządzenie RoboArm
 	
 End Sub
 
@@ -151,8 +147,9 @@ End Sub
 
 Private Sub CommPort_Connected (Success As Boolean)
 	
-	If Success Then																			'jeśli połączenie się powiodło to:
-		
+	If Success == True and IsAdapterConnected == False Then									'jeśli połączenie się powiodło to:
+		IsAdapterConnected = True															'ustaw zmienną 
+		ProgressDialogHide																	'ukryj okno postępu połączenia
 		If AsyncText.IsInitialized Then														'jeśli komunikacja asynchronicza jest już zainicjowana t:
 			AsyncText.Close																	'zamknij kanał
 		End If
