@@ -13,6 +13,6 @@ ModuleClosedNodes1=
 ModuleClosedNodes2=1,2,3,4,5,6,7,8
 ModuleClosedNodes3=
 ModuleClosedNodes4=1
-NavigationStack=Main,BluetoothError,106,4,Main,BluetoohInit,116,6,Main,Process_Globals,22,0,Main,Bluetooth_DiscoveryFinished,180,6,Main,BluetoothConnectWindow,105,6,Main,BtConnectButton_Click,95,1,Main,BluetoothSerch,145,6,Main,Bluetooth_DiscoveryStarted,165,6,Main,BluetoothConnect,160,6
+NavigationStack=Main,BluetoothError,106,4,Main,BluetoohInit,116,6,Main,Bluetooth_DiscoveryFinished,180,6,Main,BluetoothConnectWindow,105,6,Main,BtConnectButton_Click,95,1,Main,BluetoothSerch,145,6,Main,Bluetooth_DiscoveryStarted,165,6,Main,BluetoothConnect,160,6,Main,Process_Globals,22,0
 SelectedBuild=0
 VisibleModules=4,3,2,1
