@@ -103,7 +103,7 @@ Private Sub Connect(DeviceName As String)
 		End If
 	Next
 	
-	If AvailableDevices.Size == 0 or IsFoundNotCompatibile Then						'jeśli nie odnaleziono żadnego urządzenia:
+	If AvailableDevices.Size == 0 Or IsFoundNotCompatibile Then						'jeśli nie odnaleziono żadnego urządzenia:
 		InfoWindow("Nie odnaleziono kompatybilnego urządzenia")						'wyświetl komunikat o braku urządzeń
 	End If
 	
@@ -147,7 +147,7 @@ End Sub
 
 Private Sub CommPort_Connected (Success As Boolean)
 	
-	If Success == True and IsAdapterConnected == False Then									'jeśli połączenie się powiodło to:
+	If Success == True And IsAdapterConnected == False Then									'jeśli połączenie się powiodło to:
 		IsAdapterConnected = True															'ustaw zmienną 
 		ProgressDialogHide																	'ukryj okno postępu połączenia
 		If AsyncText.IsInitialized Then														'jeśli komunikacja asynchronicza jest już zainicjowana t:
