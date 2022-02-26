@@ -4,6 +4,7 @@ ModulesStructureVersion=1
 Type=Class
 Version=11.2
 @EndOfDesignText@
+'Zmienne globalne  (w zakresie klasy)
 Sub Class_Globals
 	
 	Private xui As XUI													'zmienna graficzna
@@ -20,7 +21,7 @@ Sub Class_Globals
 	
 End Sub
 
-'Initializes the object. You can add parameters to this method if needed.
+'Inicjalizacja klasy
 Public Sub Initialize
 	
 	Adapter.Initialize("Adapter")													'inicjalizacja modułu bluetooth

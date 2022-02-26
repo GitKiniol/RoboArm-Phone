@@ -128,7 +128,9 @@ End Sub
 
 Private Sub TaskSetupButton_Click
 	
+	Activity.RemoveAllViews																	'usunięcie wyświetlanych elementów
 	
+	Activity.LoadLayout("TaskScreen")														'załaduj ekran ustawień parametrow ruchu
 	
 End Sub
 
