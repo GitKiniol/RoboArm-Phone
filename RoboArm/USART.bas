@@ -89,23 +89,27 @@ End Sub
 
 Private Sub Connect(DeviceName As String)
 	
-	ProgressDialogHide																'ukrycie okna postępu wyszukiwania	
+	ProgressDialogHide																'ukrycie okna postępu wyszukiwania
 	
-	Dim DeviceInList As Device														'kompatybilne urządzenie
+	Dim DeviceInList As Device														'urządzenie na liście
+	Dim CompatibilityDevice As Device												'kompatybilne urządzenie
 	Dim IsFoundNotCompatibile = False As Boolean									'czy znaleziono niekompatybilne urządzenia
 	
 	For i = 0 To AvailableDevices.Size - 1
 		DeviceInList = AvailableDevices.Get(i)										'pobierz pierwsze na liscie urządzenie
-		IsFoundNotCompatibile = True												'ustawienie flagi niekompatybilnych urządzeń
 		If DeviceInList.Name == DeviceName Then										'jeśli nazwa pasuje do wzorca to:
-			IsFoundNotCompatibile = False											'zerowanie flagi niekompatybilnych urządzeń
-			CommPort.Connect(DeviceInList.MAC)										'podłącz do urządzenia poprzez port szeregowy
-			ProgressDialogShow("Próba podłaczenia urządzenia : " & DeviceName)		'wyświetl okno informujące o prcesi podłączania
+			IsFoundNotCompatibile = True											'znaleziono kompatybilne urządzenie
+			CompatibilityDevice = DeviceInList										'pobranie kompatybilnego urządzenia z listy znalezionych
 		End If
 	Next
 	
-	If AvailableDevices.Size == 0 Or IsFoundNotCompatibile Then						'jeśli nie odnaleziono żadnego urządzenia:
+	If AvailableDevices.Size == 0 Or IsFoundNotCompatibile == False Then			'jeśli nie odnaleziono żadnego urządzenia:
 		InfoWindow("Nie odnaleziono kompatybilnego urządzenia")						'wyświetl komunikat o braku urządzeń
+	Else
+		If IsFoundNotCompatibile == True Then										'jeśli znaleziono kompatybilne urządzenie to:
+			CommPort.Connect(CompatibilityDevice.MAC)								'podłącz do urządzenia poprzez port szeregowy
+			ProgressDialogShow("Próba podłaczenia urządzenia : " & DeviceName)		'wyświetl okno informujące o prcesi podłączania
+		End If
 	End If
 	
 End Sub
