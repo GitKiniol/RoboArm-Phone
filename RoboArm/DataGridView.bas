@@ -222,4 +222,11 @@ Public Sub SetItemValue(Axis As String, Column As String, Value As String) As Bo
 	End If
 End Sub
 
+'procedura sprawdza czy dany wiersz już istenieje
+Public Sub IsRowExist(Name As String) As Boolean
+	
+	Return Rows.ContainsKey(Name)													'sprawdź czy wiersz o podanej nazwie znajduje się w tabeli
+	
+End Sub
+
 'rozpoczęcie prac nad modułem: 21-02-2022

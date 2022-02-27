@@ -92,6 +92,38 @@ Sub Globals
 	Private DriverDisConnectButton As ImageButton											'przycisk do odłączania sterownika
 	Private TaskSetupButton As ImageButton													'przełączenie na ekran ustawień parametrów ruchu
 	
+	Private AcisCLabel As Label
+	Private AddToJobButton As Button
+	Private AxisACheckBox As CheckBox
+	Private AxisALabel As Label
+	Private AxisASeekBar As SeekBar
+	Private AxisAValue As Label
+	Private AxisBCheckBox As CheckBox
+	Private AxisBLabel As Label
+	Private AxisBSeekBar As SeekBar
+	Private AxisBValue As Label
+	Private AxisCCheckBox As CheckBox
+	Private AxisCSeekBar As SeekBar
+	Private AxisCValue As Label
+	Private AxisGCheckBox As CheckBox
+	Private AxisGLabel As Label
+	Private AxisGSeekBar As SeekBar
+	Private AxisGValue As Label
+	Private AxisMovesDataGrid As DataGridView
+	Private AxisTCheckBox As CheckBox
+	Private AxisTLabel As Label
+	Private AxisTSeekBar As SeekBar
+	Private AxisTValue As Label
+	Private AxisZCheckBox As CheckBox
+	Private AxisZLabel As Label
+	Private AxisZSeekBar As SeekBar
+	Private AxisZValue As Label
+	Private JobScreenButton As Button
+	Private SendTaskButton As Button
+	Private SpeedLabel As Label
+	Private SpeedSeekBar As SeekBar
+	Private SpeedValue As Label
+	
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
@@ -126,6 +158,8 @@ Sub SwitchScreenTimer_Tick
 	
 End Sub
 
+#Region ConnectScreen
+
 Private Sub TaskSetupButton_Click
 	
 	Activity.RemoveAllViews																	'usunięcie wyświetlanych elementów
@@ -150,3 +184,88 @@ Private Sub BtConnectButton_Click
 	Bluetooth.Serch
 	
 End Sub
+
+#End Region
+
+#Region TaskScreen
+
+
+
+#End Region
+
+
+Private Sub SendTaskButton_Click
+	
+End Sub
+
+Private Sub AddToJobButton_Click
+	
+End Sub
+
+Private Sub JobScreenButton_Click
+	
+End Sub
+
+Private Sub AxisSeekBar_ValueChanged (Value As Int, UserChanged As Boolean)
+	
+	Dim AxisSeekBar = Sender As SeekBar															'obiekt wywołujący zdarzenie
+	Dim AxisName = AxisSeekBar.Tag As String													'litera osi pobrana z tagu
+	AxisName = AxisName.SubString(3)
+	Dim AxisValue As Int																		'wartość suwaka kąta osi
+	
+	For Each ViewElement As SeekBar In Activity.GetAllViewsRecursive							'przeszukaj wszystkie elementy na ekranie
+		If ViewElement.Tag == "sbv" & AxisName Then												'jesli element zawiera szukaną nazwę to:
+			AxisValue = ViewElement.Value + (-90)												'oblicz kąt
+		End If
+	Next
+	
+	For Each ViewElement2 As Label In Activity.GetAllViewsRecursive								'przeszukaj wszystkie elementy na ekranie
+		If ViewElement2.Tag == "lv" & AxisName Then												'jesli element zawiera szukaną nazwę to:
+			ViewElement2.Text = AxisValue & "°"													'zapisz wartość kąta
+		End If
+	Next
+	
+	
+End Sub
+
+Private Sub AxisCheckBox_CheckedChange(Checked As Boolean)
+	
+	Dim AxisCheckBox = Sender As SeekBar														'obiekt wywołujący zdarzenie
+	Dim AxisName = AxisCheckBox.Tag As String													'litera osi pobrana z tagu
+	Dim AxisAngle As Int																		'kąt osi
+	Dim AxisDir As Int																			'kierunek osi	
+	Dim DataForRow As List																		'lista danych dla wiersza
+	DataForRow.Initialize																		'inicjalizacja listy
+	
+	For Each ViewElement As Label In Activity.GetAllViewsRecursive								'przeszukaj wszystkie elementy na ekranie
+		If ViewElement.Tag == "lv" & AxisName Then												'jesli element zawiera szukaną nazwę to:
+			AxisAngle = ViewElement.Text.Replace("°","")										'zapisz jego wartość do zmiennej
+			If AxisAngle >= 0 Then																'jeśli wartość kąta większa lub równa 0 to:
+				AxisDir = 0																		'ustaw prawy kierunek obrotów
+			Else																				'w przeciwnym razie:
+				AxisDir = 1																		'ustaw lewy kierunek obrotów
+			End If
+		End If
+	Next
+	
+	If AxisMovesDataGrid.IsRowExist("Oś " & AxisName) == False Then								'jeśli wiersza jeszcze nie ma to:
+		
+		DataForRow.Add("Oś " & AxisName)														'dodaj nazwę osi do listy
+		DataForRow.Add(AxisAngle)																'dodaj kąt osi do listy
+		DataForRow.Add(SpeedSeekBar.Value)														'dodaj prędkość osi do listy
+		DataForRow.Add(AxisDir)																	'dodaj kierunek osi do listy
+		DataForRow.Add("1")																		'dodaj informację ołączeniu ruchów do listy
+		AxisMovesDataGrid.InsertRow(DataForRow)													'wstaw wiersz
+		
+	Else																						'jeśli wiersz istnieje to:
+		
+		AxisMovesDataGrid.DeleteRow(AxisName)													'usuń wiersz
+		
+	End If
+	
+End Sub
+
+Private Sub SpeedSeekBar_ValueChanged (Value As Int, UserChanged As Boolean)
+	
+End Sub
+
