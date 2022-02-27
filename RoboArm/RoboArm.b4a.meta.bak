@@ -1,0 +1,28 @@
+﻿ModuleBookmarks0=74
+ModuleBookmarks1=
+ModuleBookmarks2=
+ModuleBookmarks3=
+ModuleBookmarks4=
+ModuleBookmarks5=
+ModuleBookmarks6=
+ModuleBreakpoints0=
+ModuleBreakpoints1=
+ModuleBreakpoints2=199
+ModuleBreakpoints3=
+ModuleBreakpoints4=
+ModuleBreakpoints5=
+ModuleBreakpoints6=
+ModuleClosedNodes0=
+ModuleClosedNodes1=
+ModuleClosedNodes2=1,2,3,4,5,6,7,8
+ModuleClosedNodes3=
+ModuleClosedNodes4=1
+ModuleClosedNodes5=
+<<<<<<< HEAD
+ModuleClosedNodes6=
+NavigationStack=USART,Initialize,27,0,Main,SwitchScreenTimer_Tick,61,0,Main,TaskSetupButton_Click,74,6,Wizualny projektant,splashscreen.bal,-100,2,Wizualny projektant,ConnectScreen.bal,-100,3,Wizualny projektant,TaskScreen.bal,-100,4,Main,Activity_Resume,51,0,USART,Adapter_DiscoveryStarted,116,0,TaskScreen,Class_Globals,0,0,USART,Connect,106,0
+=======
+NavigationStack=USART,Serch,70,0,USART,Class_Globals,1,6,USART,Initialize,27,0,Main,SwitchScreenTimer_Tick,61,0,Main,TaskSetupButton_Click,74,6,Wizualny projektant,splashscreen.bal,-100,2,Wizualny projektant,ConnectScreen.bal,-100,3,Wizualny projektant,TaskScreen.bal,-100,4,Main,Activity_Resume,51,0,USART,Connect,106,0,TaskScreen,Class_Globals,0,0
+>>>>>>> main
+SelectedBuild=0
+VisibleModules=4,3,2,1,6,5
