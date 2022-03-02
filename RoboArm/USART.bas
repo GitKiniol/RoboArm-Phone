@@ -171,7 +171,7 @@ End Sub
 
 Private Sub AsyncText_Terminated
 	
-	WarningWindow("Połączenie zostało zerwane")
+	WarningWindow("Połączenie zostało zerwane")												'informacjao zerwaniu połączenia
 	
 End Sub
 

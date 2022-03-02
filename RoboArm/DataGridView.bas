@@ -11,13 +11,10 @@ Version=11.2
 #DesignerProperty: Key: ItemTextColor, DisplayName: Kolor wartości, FieldType: Color, DefaultValue: 0xFF000000, Description: Kolor napisów we wierszach tabeli
 #DesignerProperty: Key: HeaderBackground, DisplayName: Tło nagłówka, FieldType: Color, DefaultValue: 0xFF808080, Description: Kolor tła nagłówków
 #DesignerProperty: Key: HeaderTextColor, DisplayName: Kolor nagłówka, FieldType: Color, DefaultValue: 0xFF000000, Description: Kolor napisów w nagłówkach tabeli
-'#DesignerProperty: Key: BooleanExample, DisplayName: Boolean Example, FieldType: Boolean, DefaultValue: True, Description: Example of a boolean property.
-'#DesignerProperty: Key: IntExample, DisplayName: Int Example, FieldType: Int, DefaultValue: 10, MinRange: 0, MaxRange: 100, Description: Note that MinRange and MaxRange are optional.
-'#DesignerProperty: Key: StringWithListExample, DisplayName: String With List, FieldType: String, DefaultValue: Sunday, List: Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday
-'#DesignerProperty: Key: StringExample, DisplayName: String Example, FieldType: String, DefaultValue: Text
-'#DesignerProperty: Key: ColorExample, DisplayName: Color Example, FieldType: Color, DefaultValue: 0xFFCFDCDC, Description: You can use the built-in color picker to find the color values.
-'#DesignerProperty: Key: DefaultColorExample, DisplayName: Default Color Example, FieldType: Color, DefaultValue: Null, Description: Setting the default value to Null means that a nullable field will be displayed.
+
 Sub Class_Globals
+	
+	Private xui As XUI
 	Private mEventName As String 'ignore
 	Private mCallBack As Object 'ignore
 	Private mBase As Panel
@@ -147,8 +144,10 @@ Public Sub InsertRow(RowData As List)
 	blendCheckBox.Color = RowBackground								'ustawienie koloru tła
 	If RowData.Get(4) == "1" Then									'jeśli przekazana wartość miksowania = 1 to:
 		blendCheckBox.Checked = True								'właczenie miksowania ruchów
+		row.Put(tags.Get(4), blendCheckBox.Checked)					'dodanie do wiersza informacji o miksowaniu ruchów
 	Else
 		blendCheckBox.Checked = False								'wyłączenie miksowania róchów
+		row.Put(tags.Get(4), blendCheckBox.Checked)					'dodanie do wiersza informacji o miksowaniu ruchów
 	End If
 	'wyświetlenie celki tabeli
 	mBase.AddView(blendCheckBox, (ColumnWidth * 4) + ((4 + 1) * ColumnsGap), (RowHeight * RowsCount) + (RowsCount * RowsGap), ColumnWidth, RowHeight)
@@ -227,6 +226,26 @@ Public Sub IsRowExist(Name As String) As Boolean
 	
 	Return Rows.ContainsKey(Name)													'sprawdź czy wiersz o podanej nazwie znajduje się w tabeli
 	
+End Sub
+
+'procedura zwraca całą tabelę
+Public Sub GetTable As Map
+	Return Rows
+End Sub
+
+
+Public Sub BlendChecked_CheckedChange(Checked As Boolean)
+	
+	Dim cb = Sender As CheckBox
+	Dim tag = cb.Tag As String
+	
+	Dim axis = tag.SubString2(tag.IndexOf(":") + 1, tag.LastIndexOf(":")) As String		'pobierz nazwę osi
+	Dim row = Rows.Get(axis) As Map														'pobierz wiersz tabeli
+	If row.IsInitialized Then
+		row.Put(tag.SubString2(0, tag.IndexOf(":")), cb.Checked)						'zmień wartość miksowania
+	End If
+
+
 End Sub
 
 'rozpoczęcie prac nad modułem: 21-02-2022

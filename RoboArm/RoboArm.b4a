@@ -62,6 +62,7 @@ Version=11.2
 	'SupportedOrientations possible values: unspecified, landscape or portrait.
 	#SupportedOrientations: portrait
 	#CanInstallToExternalStorage: False
+	#BridgeLogger: True
 #End Region
 
 #Region  Activity Attributes 
@@ -75,6 +76,9 @@ Sub Process_Globals
 	Private xui As XUI
 	Private Bluetooth As USART																'bluetooth
 	Private AutoSwitchScreenTimer As Timer													'timer odlicza czas trwania splash screena i przełacza na ekran nawiązywania połączenia
+	
+	Private Job As Map																		'praca dla robota(praca to sekwencja zadań, może się składać z jednego lub więcej Tasków)
+	Private JobIndex = 1 As Int																'index pracy
 	
 End Sub
 
@@ -189,16 +193,94 @@ End Sub
 
 #Region TaskScreen
 
+Private Sub InsertAngleToLabel(Angle As String, AxisLeter As String)
+	
+	For Each ViewElement In Activity.GetAllViewsRecursive										'przeszukaj wszystkie elementy na ekranie
+		If ViewElement Is Label Then															'jeśli badany element jest typu Label to:
+			Dim lv = ViewElement As Label														'zapisz ten element w zmiennej
+			If lv.Tag == "lv" & AxisLeter Then													'jesli tag elementu zgadza się z tagiem sendera to:
+				lv.Text = Angle & "°"															'wpisz wartość kąta do labelki
+			End If
+		End If
+	Next
+	
+End Sub
 
+Private Sub InsertAngleToDataGrid(AxisLeter As String)
+	
+	Dim AngleFromLabel As Int
+	Dim AxisDir As Int
+	
+	For Each ViewElement In Activity.GetAllViewsRecursive									'przeszukaj wszystkie elementy na ekranie
+		If ViewElement Is Label Then														'jeśli badany element jest typu Label to:
+			Dim lv = ViewElement As Label													'zapisz ten emement w zmiennej
+			If lv.Tag == "lv" & AxisLeter Then												'jesli tag elementu zgadza się z tagiem parametru to:
+				AngleFromLabel = lv.Text.Replace("°","")									'przepisz wartość kąta z labelki do zmiennej
+			End If
+		End If
+	Next
+	
+	If AngleFromLabel >= 0 Then																'jeśli wartość kąta większa lub równa 0 to:
+		AxisDir = 0																			'ustaw prawy kierunek obrotów
+		AxisMovesDataGrid.SetItemValue(AxisLeter, "Angle", AngleFromLabel)					'wstaw kąt osi do tabeli
+		Else																				'w przeciwnym razie:
+		AxisDir = 1																			'ustaw lewy kierunek obrotów
+		AxisMovesDataGrid.SetItemValue(AxisLeter, "Angle", (AngleFromLabel * -1))			'wstaw kąt osi do tabeli
+	End If
+	
+	AxisMovesDataGrid.SetItemValue(AxisLeter, "Dir", AxisDir)								'wstaw kierunek osi do tabeli
+	
+End Sub
 
-#End Region
-
+Private Sub CreateJob
+	
+	Job.Initialize																					'inicjalizacja pracy
+	
+	Dim JobName = "Job_" & JobIndex  As String														'nazwa pracy
+	Dim TaskTab = AxisMovesDataGrid.GetTable As Map													'pobranie wszystkich danych z tabeli
+	Job.Put(JobName, TaskTab)																		'przeniesienie zadania do pracy(Task->JOB)
+	JobIndex = JobIndex + 1
+	
+End Sub
 
 Private Sub SendTaskButton_Click
+	
+	Dim SendingData As List																			'lista danych do wysłania
+	SendingData.Initialize																			'inicjalizacja listy
+	Dim TaskTab = AxisMovesDataGrid.GetTable As Map													'pobranie wszystkich danych z tabeli
+	Dim Row As Map																					'dane wiersza tabeli										
+	
+	If TaskTab.Size > 0 Then																		'Czy tabela zawiera dane ? Jeśli tak to :
+		For i = 0 To TaskTab.Size - 1																'iteracja po tabeli
+			Row = TaskTab.GetValueAt(i)																'pobranie wiersza z tabeli
+			Dim IsBlend = Row.Get("Blend") As String												'odczyt informacji o miksowaniu ruchów
+			If IsBlend == True And (i + 1) < TaskTab.Size Then										'jeśli w aktualnym wierszu miksowanie ruchów załączone to:
+				Log("Send Task")																	'wyślij ramkę typu TASK
+				Do Until IsBlend == False															'jeśli miksowanie nadal aktywne 
+					i = i + 1																		'oblicz index kolejnego wiersza tabeli
+					Row = TaskTab.GetValueAt(i)														'pobierz wiersz z pod obiczonego indeksu
+					IsBlend = Row.Get("Blend")														'odczytaj dane o miksowaniu ruchów
+					If IsBlend == True And (i + 1) < TaskTab.Size Then								'jeśli miksowanie załączone i index następnego wiersza nie przekracza liczby wierszy w tabeli to:
+						Log("Send Task")															'wyślij ramkę typu TASK
+					Else																			'w innym wypadku:
+						Log("Send Eask")															'wyślij ramkę typu ETASK (ostatni ruch w ramach TASK)
+						IsBlend = False																'wyłącz miksowanie
+						Continue																	'zakończ iterację
+					End If
+				Loop
+			Else																					'jeśli miksowanie ruchów wyłączone to:
+				Log("Send Move")																	'wyślij ramkę typu MOVE
+			End If
+		Next																						
+	Else																							'W przeciwnym razie:
+		xui.MsgboxAsync("Brak danych do wysłania", "BLUETOOTH")										'komunikat-brak danych do wysłania
+	End If
 	
 End Sub
 
 Private Sub AddToJobButton_Click
+	
+	CreateJob
 	
 End Sub
 
@@ -213,59 +295,57 @@ Private Sub AxisSeekBar_ValueChanged (Value As Int, UserChanged As Boolean)
 	AxisName = AxisName.SubString(3)
 	Dim AxisValue As Int																		'wartość suwaka kąta osi
 	
-	For Each ViewElement As SeekBar In Activity.GetAllViewsRecursive							'przeszukaj wszystkie elementy na ekranie
-		If ViewElement.Tag == "sbv" & AxisName Then												'jesli element zawiera szukaną nazwę to:
-			AxisValue = ViewElement.Value + (-90)												'oblicz kąt
+	For Each ViewElement In Activity.GetAllViewsRecursive										'przeszukaj wszystkie elementy na ekranie
+		If ViewElement Is SeekBar Then															'jeśli badany element jest typu SeekBar to:
+			Dim sb = ViewElement As SeekBar														'zapisz ten element w zmiennej
+			If sb.Tag == "sbv" & AxisName Then													'jesli tag elementu zgadza się z tagiem sendera to:
+				AxisValue = sb.Value + (-90)													'oblicz kąt
+			End If
 		End If
 	Next
 	
-	For Each ViewElement2 As Label In Activity.GetAllViewsRecursive								'przeszukaj wszystkie elementy na ekranie
-		If ViewElement2.Tag == "lv" & AxisName Then												'jesli element zawiera szukaną nazwę to:
-			ViewElement2.Text = AxisValue & "°"													'zapisz wartość kąta
-		End If
-	Next
-	
+	InsertAngleToLabel(AxisValue, AxisName)														'wstawienie wartości kąta do odpowiedniej labelki
+	InsertAngleToDataGrid(AxisName)																'wstawianie kąta osi do tabeli
 	
 End Sub
 
 Private Sub AxisCheckBox_CheckedChange(Checked As Boolean)
 	
-	Dim AxisCheckBox = Sender As SeekBar														'obiekt wywołujący zdarzenie
+	Dim AxisCheckBox = Sender As CheckBox														'obiekt wywołujący zdarzenie
 	Dim AxisName = AxisCheckBox.Tag As String													'litera osi pobrana z tagu
-	Dim AxisAngle As Int																		'kąt osi
-	Dim AxisDir As Int																			'kierunek osi	
+	Dim AxisAngle = 0 As Int																	'kąt osi
+	Dim AxisDir  = 0 As Int																		'kierunek osi
 	Dim DataForRow As List																		'lista danych dla wiersza
 	DataForRow.Initialize																		'inicjalizacja listy
 	
-	For Each ViewElement As Label In Activity.GetAllViewsRecursive								'przeszukaj wszystkie elementy na ekranie
-		If ViewElement.Tag == "lv" & AxisName Then												'jesli element zawiera szukaną nazwę to:
-			AxisAngle = ViewElement.Text.Replace("°","")										'zapisz jego wartość do zmiennej
-			If AxisAngle >= 0 Then																'jeśli wartość kąta większa lub równa 0 to:
-				AxisDir = 0																		'ustaw prawy kierunek obrotów
-			Else																				'w przeciwnym razie:
-				AxisDir = 1																		'ustaw lewy kierunek obrotów
-			End If
-		End If
-	Next
-	
 	If AxisMovesDataGrid.IsRowExist("Oś " & AxisName) == False Then								'jeśli wiersza jeszcze nie ma to:
-		
 		DataForRow.Add("Oś " & AxisName)														'dodaj nazwę osi do listy
 		DataForRow.Add(AxisAngle)																'dodaj kąt osi do listy
 		DataForRow.Add(SpeedSeekBar.Value)														'dodaj prędkość osi do listy
 		DataForRow.Add(AxisDir)																	'dodaj kierunek osi do listy
 		DataForRow.Add("1")																		'dodaj informację ołączeniu ruchów do listy
 		AxisMovesDataGrid.InsertRow(DataForRow)													'wstaw wiersz
-		
 	Else																						'jeśli wiersz istnieje to:
-		
 		AxisMovesDataGrid.DeleteRow(AxisName)													'usuń wiersz
-		
 	End If
+	
+	InsertAngleToDataGrid(AxisName)																'wstaw kąt osi do tabeli
 	
 End Sub
 
 Private Sub SpeedSeekBar_ValueChanged (Value As Int, UserChanged As Boolean)
 	
+	AxisMovesDataGrid.SetItemValue("Z", "Speed", Value)											'wtawienie prędkości osi Z Do tabeli
+	AxisMovesDataGrid.SetItemValue("A", "Speed", Value)											'wtawienie prędkości osi A Do tabeli
+	AxisMovesDataGrid.SetItemValue("B", "Speed", Value)											'wtawienie prędkości osi B Do tabeli
+	AxisMovesDataGrid.SetItemValue("C", "Speed", Value)											'wtawienie prędkości osi C  Do tabeli
+	AxisMovesDataGrid.SetItemValue("G", "Speed", Value)											'wtawienie prędkości osi G  Do tabeli
+	AxisMovesDataGrid.SetItemValue("T", "Speed", Value)											'wtawienie prędkości osi T Do tabeli
+	
 End Sub
+
+#End Region
+
+
+
 
