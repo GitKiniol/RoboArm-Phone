@@ -4,10 +4,14 @@ ModulesStructureVersion=1
 Type=Class
 Version=11.2
 @EndOfDesignText@
+#Event: StatusReadyReceived
 'Zmienne globalne  (w zakresie klasy)
 Sub Class_Globals
 	
 	Private xui As XUI													'zmienna graficzna
+	
+	Private mTarget As Object											'obiekt klasy nadrzędnej
+	Private mEventName As String										'nazwa eventu
 	
 	Type Device(Name As String, MAC As String)							'typ danuch opisujący zewnętrzne urządzenie bluetooth
 	Private AvailableDevices As List									'lista odnalezionych urządzeńbluetooth
@@ -16,47 +20,54 @@ Sub Class_Globals
 	Private CommPort As Serial											'port szeregowy
 	Private AsyncText As AsyncStreamsText								'komunikacja asynchroniczna
 	
+	'Type Frame(StartCode As String, Data1 As String, Data2 As String, Data3 As String, Data4 As String, EndCode As String, Complete As Boolean)
+	Private ReceivedFrame As List										'ramka danych odebrana z uC
+	
 	Public IsAdapterConnected As Boolean								'czy zewnętrzny moduł bluetooth jest podłączony?
-	Public ReceivedText As String										'trkst odebrany przez bluetooth
+	
 	
 End Sub
 
 'Inicjalizacja klasy
-Public Sub Initialize
+Public Sub Initialize(TargetModule As Object, EventName As String)
 	
 	Adapter.Initialize("Adapter")													'inicjalizacja modułu bluetooth
 	CommPort.Initialize("CommPort")													'inicjlizacja portu szeregowego
 	IsAdapterConnected = False														'wewnętrzny bluetooth nie połączony
+	ReceivedFrame.Initialize														'inicjalizacja ramki danych
+	mTarget = TargetModule															'ustawienie modułu nadrzędnego
+	mEventName = EventName															'ustawienie nazwy eventu
+	ReceivedFrame.Initialize														'inicjalizacja ramki danych
 	
 End Sub
 
 #Region AdapterProcedures
 
-Private Sub AskWindow(Question As String) As Object
+Public Sub AskWindow(Question As String) As Object
 	
 	'procedura wyświetla okienko z zapytanie czy podłączyć urządzenie
-	Return xui.Msgbox2Async(Question, "PYTANIE", "TAK", "", "NIE", LoadBitmap(File.DirAssets, "Question.png"))
+	Return xui.Msgbox2Async(Question, "BLUETOOTH", "TAK", "", "NIE", LoadBitmap(File.DirAssets, "Question.png"))
 	
 End Sub
 
-Private Sub ErrorWindow(Message As String)
+Public Sub ErrorWindow(Message As String)
 	
 	'procedura wyświetla komunikat błędu
-	xui.Msgbox2Async(Message, "BŁĄD", "", "", "OK", LoadBitmap(File.DirAssets, "Error.png"))
+	xui.Msgbox2Async(Message, "BLUETOOTH", "", "", "OK", LoadBitmap(File.DirAssets, "Error.png"))
 	
 End Sub
 
-Private Sub InfoWindow(Message As String)
+Public Sub InfoWindow(Message As String)
 	
 	'procedura wyświetla komunikat informacyjny
-	xui.Msgbox2Async(Message, "INFORMACJA", "", "", "OK", LoadBitmap(File.DirAssets, "Information.png"))
+	xui.Msgbox2Async(Message, "BLUETOOTH", "", "", "OK", LoadBitmap(File.DirAssets, "Information.png"))
 	
 End Sub
 
-Private Sub WarningWindow(Message As String)
+Public Sub WarningWindow(Message As String)
 	
 	'procedura wyświetla komunikat ostrzegawczy
-	xui.Msgbox2Async(Message, "OSTRZEŻENIE", "", "", "OK", LoadBitmap(File.DirAssets, "Warning.png"))
+	xui.Msgbox2Async(Message, "BLUETOOTH", "", "", "OK", LoadBitmap(File.DirAssets, "Warning.png"))
 	
 End Sub
 
@@ -120,6 +131,46 @@ Public Sub Send(Message As String)
 	
 End Sub
 
+Public Sub SendStatusFrame
+	Send("STATUS")
+	Send("0")
+	Send("0")
+	Send("0")
+	Send("0")
+	Send("END")
+End Sub
+
+Public Sub SendWorkFrame(FrameType As String, FrameData As Map)
+	
+	Dim DataList As List															'lista danych do wysłania
+	DataList.Initialize																'inicjalizacja listy danych
+	DataList.Add(FrameType)															'dodanie do listy typu ramki
+	For i = 0 To FrameData.Size - 2													'iteracja o danych wiersza 
+		DataList.Add(FrameData.GetValueAt(i))										'zapis danych z wiersza tabeli na liście
+	Next
+	
+	For i = 0 To DataList.Size - 1													'iteracja po liście danych do wysłania
+		Log(DataList.Get(i))														'wysyłanie elementów z listy
+		Send(DataList.Get(i))
+	Next
+	
+End Sub
+
+Private Sub GetData(DataText As String) As Boolean
+	
+	ReceivedFrame.Add(DataText)														'zapisz odebrane dane
+	If ReceivedFrame.Size == 6 Then													'jeśli odebrano 6 pakietów to:
+		If ReceivedFrame.Get(0) == "STATUS" And ReceivedFrame.Get(1) == "1" Then	'sprawdź czy pakiety 0 i 1 mają odopowiednią zawartość, jeśli tak to:
+			Return True																'zwróć True
+		Else'																		'jeśli nie to:
+			Return False															'zwróć Fals
+		End If
+	Else																			'jeśli jeszcze nie odebrano sześciu pakietów to:
+		Return False																'zwróć False
+	End If
+
+End Sub
+
 #End Region
 
 #Region AdapterEvents
@@ -177,7 +228,9 @@ End Sub
 
 Private Sub AsyncText_NewText (Text As String)
 	
-	ReceivedText = Text																		'odczyt tekstu z bluetooth
+	If GetData(Text) Then															'jeśli odebrano ramkę danych to:
+		CallSub(mTarget, mEventName & "_StatusReadyReceived")						'wywołanie eventu potwierdzenia odbioru
+	End If
 	
 End Sub
 
