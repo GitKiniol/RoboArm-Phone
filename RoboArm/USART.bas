@@ -127,27 +127,43 @@ End Sub
 
 Public Sub Send(Message As String)
 	
-	AsyncText.Write(Message)														'wysłanie tekstu przez bluetooth
+	AsyncText.Write(Message & Chr(10) & Chr(13))									'wysłanie tekstu przez bluetooth
 	
 End Sub
 
 Public Sub SendStatusFrame
+	Send("SF")
 	Send("STATUS")
 	Send("0")
 	Send("0")
 	Send("0")
 	Send("0")
-	Send("END")
+	Send("0")
+	Send("EF")
 End Sub
 
 Public Sub SendWorkFrame(FrameType As String, FrameData As Map)
 	
 	Dim DataList As List															'lista danych do wysłania
 	DataList.Initialize																'inicjalizacja listy danych
+	DataList.Add("SF")																'dodanie do listy kodu początku ramki
 	DataList.Add(FrameType)															'dodanie do listy typu ramki
-	For i = 0 To FrameData.Size - 2													'iteracja o danych wiersza 
-		DataList.Add(FrameData.GetValueAt(i))										'zapis danych z wiersza tabeli na liście
-	Next
+	Dim axis = FrameData.Get("Name") As String
+	DataList.Add(axis.SubString2(axis.Length - 1, axis.Length))
+	
+	Dim angle = FrameData.Get("Angle") As String
+	DataList.Add(angle)
+	
+	Dim angle = FrameData.Get("Speed") As String
+	DataList.Add(angle)
+	
+	Dim angle = FrameData.Get("Dir") As String
+	DataList.Add(angle)
+	
+	Dim angle = FrameData.Get("Blend") As String
+	DataList.Add(angle)
+	
+	DataList.Add("EF")															 	'dodanie do listy kodu końca ramki
 	
 	For i = 0 To DataList.Size - 1													'iteracja po liście danych do wysłania
 		Log(DataList.Get(i))														'wysyłanie elementów z listy
@@ -158,17 +174,18 @@ End Sub
 
 Private Sub GetData(DataText As String) As Boolean
 	
-	ReceivedFrame.Add(DataText)														'zapisz odebrane dane
-	If ReceivedFrame.Size == 6 Then													'jeśli odebrano 6 pakietów to:
-		If ReceivedFrame.Get(0) == "STATUS" And ReceivedFrame.Get(1) == "1" Then	'sprawdź czy pakiety 0 i 1 mają odopowiednią zawartość, jeśli tak to:
+	ReceivedFrame.Add(DataText.Trim)												'zapisz odebrane dane
+	If ReceivedFrame.Size == 8 Then													'jeśli odebrano 7 pakietów to:
+		If ReceivedFrame.Get(0) == "SF" And ReceivedFrame.Get(2) == "1" Then		'sprawdź czy pakiety 0 i 2 mają odopowiednią zawartość, jeśli tak to:
+			ReceivedFrame.Initialize
 			Return True																'zwróć True
 		Else'																		'jeśli nie to:
 			Return False															'zwróć Fals
 		End If
-	Else																			'jeśli jeszcze nie odebrano sześciu pakietów to:
+	Else																			'jeśli jeszcze nie odebrano siedmiu pakietów, to:
 		Return False																'zwróć False
 	End If
-
+	
 End Sub
 
 #End Region
@@ -228,7 +245,8 @@ End Sub
 
 Private Sub AsyncText_NewText (Text As String)
 	
-	If GetData(Text) Then															'jeśli odebrano ramkę danych to:
+	Dim s = Text As String
+	If GetData(s) Then																'jeśli odebrano ramkę danych to:
 		CallSub(mTarget, mEventName & "_StatusReadyReceived")						'wywołanie eventu potwierdzenia odbioru
 	End If
 	
