@@ -1,24 +1,25 @@
 ﻿Build1=Default,b4a.example
 File1=AppIcon.png
-File10=phoneicon2d.png
-File11=Question.png
-File12=ramierobota2d.png
-File13=SearchBtIco.png
-File14=splashscreen.bal
-File15=SplashScreen.png
-File16=TaskScreen.bal
-File17=TaskScreenIco.png
-File18=Warning.png
-File19=wireleft.png
+File10=Layout.bal
+File11=phoneicon2d.png
+File12=Question.png
+File13=ramierobota2d.png
+File14=SearchBtIco.png
+File15=splashscreen.bal
+File16=SplashScreen.png
+File17=TaskScreen.bal
+File18=TaskScreenIco.png
+File19=Warning.png
 File2=bluetoothadaptericon.png
-File20=wireright.png
+File20=wireleft.png
+File21=wireright.png
 File3=ConnectScreen.bal
 File4=DefaultButtonImage.png
 File5=DriverConnectIco.png
 File6=DriverDisConnectIco.png
 File7=Error.png
 File8=information.png
-File9=Layout.bal
+File9=JobScreen.bal
 FileGroup1=Default Group
 FileGroup10=Default Group
 FileGroup11=Default Group
@@ -32,6 +33,7 @@ FileGroup18=Default Group
 FileGroup19=Default Group
 FileGroup2=Default Group
 FileGroup20=Default Group
+FileGroup21=Default Group
 FileGroup3=Default Group
 FileGroup4=Default Group
 FileGroup5=Default Group
@@ -50,7 +52,7 @@ Module2=DataGridView
 Module3=ImageButton
 Module4=Starter
 Module5=USART
-NumberOfFiles=20
+NumberOfFiles=21
 NumberOfLibraries=4
 NumberOfModules=5
 Version=11.2
@@ -76,9 +78,6 @@ Sub Process_Globals
 	Private xui As XUI
 	Private Bluetooth As USART																'bluetooth
 	Private AutoSwitchScreenTimer As Timer													'timer odlicza czas trwania splash screena i przełacza na ekran nawiązywania połączenia
-	
-	Private Job As Map																		'praca dla robota(praca to sekwencja zadań, może się składać z jednego lub więcej Tasków)
-	Private JobIndex = 1 As Int																'index pracy
 	
 End Sub
 
@@ -131,7 +130,16 @@ Sub Globals
 	Private SendRowIndex = 0 As Int															'indeks wysyłenego wiersza tabeli
 	Dim OldBlend As String																	'poprzednia wartść miksowania
 	Private IsDataSending = False As Boolean												'czy trwa wysyłanie danych
+	Private IsConnecting = False As Boolean													'czy trwa nawązywanie połaczenia
 	
+	Private Job As Map																		'praca dla robota(praca to sekwencja zadań, może się składać z jednego lub więcej Tasków)
+	Private JobIndex = 1 As Int																'index pracy
+	
+	Private AnimationView As WebView
+	Private BackButton As ImageButton
+	Private JobProgress As ProgressBar
+	Private JobsListView As ListView
+	Private SendJobButton As ImageButton
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
@@ -140,6 +148,7 @@ Sub Activity_Create(FirstTime As Boolean)
 	AutoSwitchScreenTimer.Initialize("SwitchScreenTimer", 1000)								'incjalizacja timera prełączającego SplashScreen na ConnectScreen
 	AutoSwitchScreenTimer.Enabled = True													'uruchomienie timera
 	Activity.LoadLayout("SplashScreen")														'ekran powitalny
+	Job.Initialize																			'inicjalizacja listy prac
 	
 End Sub
 
@@ -162,6 +171,10 @@ Sub SwitchScreenTimer_Tick
 	DriverConnectButton.SetImage(LoadBitmap(File.DirAssets, "DriverConnectIco.png"))		'ustawienie ikony przycisku połaczenia ze sterownikiem
 	DriverDisConnectButton.SetImage(LoadBitmap(File.DirAssets, "DriverDisConnectIco.png"))	'ustawienie ikony przycisku odłączania od sterownika
 	TaskSetupButton.SetImage(LoadBitmap(File.DirAssets, "TaskScreenIco.png"))				'ustawienie ikony przycisku przełączającego na ekran ustawień parametrów ruchu osi
+	
+	DriverConnectButton.Disable																'zablokowanie przycisku "PodłączSterownik"
+	DriverDisConnectButton.Disable															'zablokowanie przycisku "OdłączSterownik"
+	'TaskSetupButton.Disable																	'zablokowanie przycisku "Ekran Parametrów"
 	 
 	
 End Sub
@@ -178,20 +191,23 @@ End Sub
 
 Private Sub DriverDisConnectButton_Click
 	
-	
+	Bluetooth.SendStatusFrame("3")															'wyślij żądanie rozłączenia
 	
 End Sub
 
 Private Sub DriverConnectButton_Click
 	
-	Bluetooth.SendStatusFrame
+	Bluetooth.SendStatusFrame("2")															'wyśli żądanie połączenia
+	IsConnecting = True																		'ustaw zmienną trwa podłączanie na true
+	ProgressDialogShow("Nawiązywanie połaczenia ze sterownikiem.")							'okno postępu łączenia ze strownikiem
 	
 End Sub
 
 Private Sub BtConnectButton_Click
 	
-	BtConnectButton.Disable
-	Bluetooth.Serch
+	BtConnectButton.Disable																	'zablokuj przycisk wyszukiwania urządzeń bluetooth
+	Bluetooth.Serch																			'rozpocznij poszukiwania urządzeń
+	ProgressDialogShow("Zrywanie połaczenia ze sterownikiem.")								'okno postępu odłącania od strownikia
 	
 End Sub
 
@@ -217,110 +233,49 @@ Private Sub InsertAngleToDataGrid(AxisLeter As String)
 	Dim AngleFromLabel As Int
 	Dim AxisDir As Int
 	
-	For Each ViewElement In Activity.GetAllViewsRecursive									'przeszukaj wszystkie elementy na ekranie
-		If ViewElement Is Label Then														'jeśli badany element jest typu Label to:
-			Dim lv = ViewElement As Label													'zapisz ten emement w zmiennej
-			If lv.Tag == "lv" & AxisLeter Then												'jesli tag elementu zgadza się z tagiem parametru to:
-				AngleFromLabel = lv.Text.Replace("°","")									'przepisz wartość kąta z labelki do zmiennej
+	For Each ViewElement In Activity.GetAllViewsRecursive										'przeszukaj wszystkie elementy na ekranie
+		If ViewElement Is Label Then															'jeśli badany element jest typu Label to:
+			Dim lv = ViewElement As Label														'zapisz ten emement w zmiennej
+			If lv.Tag == "lv" & AxisLeter Then													'jesli tag elementu zgadza się z tagiem parametru to:
+				AngleFromLabel = lv.Text.Replace("°","")										'przepisz wartość kąta z labelki do zmiennej
 			End If
 		End If
 	Next
 	
-	If AngleFromLabel >= 0 Then																'jeśli wartość kąta większa lub równa 0 to:
-		AxisDir = 0																			'ustaw prawy kierunek obrotów
-		AxisMovesDataGrid.SetItemValue(AxisLeter, "Angle", AngleFromLabel)					'wstaw kąt osi do tabeli
-		Else																				'w przeciwnym razie:
-		AxisDir = 1																			'ustaw lewy kierunek obrotów
-		AxisMovesDataGrid.SetItemValue(AxisLeter, "Angle", (AngleFromLabel * -1))			'wstaw kąt osi do tabeli
+	If AngleFromLabel >= 0 Then																	'jeśli wartość kąta większa lub równa 0 to:
+		AxisDir = 0																				'ustaw prawy kierunek obrotów
+		AxisMovesDataGrid.SetItemValue(AxisLeter, "Angle", AngleFromLabel)						'wstaw kąt osi do tabeli
+		Else																					'w przeciwnym razie:
+		AxisDir = 1																				'ustaw lewy kierunek obrotów
+		AxisMovesDataGrid.SetItemValue(AxisLeter, "Angle", (AngleFromLabel * -1))				'wstaw kąt osi do tabeli
 	End If
 	
-	AxisMovesDataGrid.SetItemValue(AxisLeter, "Dir", AxisDir)								'wstaw kierunek osi do tabeli
+	AxisMovesDataGrid.SetItemValue(AxisLeter, "Dir", AxisDir)									'wstaw kierunek osi do tabeli
 	
 End Sub
 
-Private Sub CreateJob
-	
-	Job.Initialize																					'inicjalizacja pracy
-	
-	Dim JobName = "Job_" & JobIndex  As String														'nazwa pracy
-	Dim TaskTab = AxisMovesDataGrid.GetTable As Map													'pobranie wszystkich danych z tabeli
-	Job.Put(JobName, TaskTab)																		'przeniesienie zadania do pracy(Task->JOB)
-	JobIndex = JobIndex + 1
-	
-End Sub
 
 Private Sub SendTaskButton_Click
 	
-	IsDataSending = True																			'zinicjowano wysyłanie danych
-	Bluetooth.SendStatusFrame																		'wysłanie rządania podania statusu(inicjowanie komunikacji)
+	IsDataSending = True																		'zinicjowano wysyłanie danych
+	Bluetooth.SendStatusFrame("1")																'wysłanie rządania podania statusu(inicjowanie komunikacji)
 	
 End Sub
 
 Private Sub AddToJobButton_Click
 	
-	CreateJob
+	CreateJob																					'utworzenie tzw. "JOB"
 	
 End Sub
 
 Private Sub JobScreenButton_Click
 	
-	
+	Activity.RemoveAllViews																		'usunięcie wszystkich elementów z ekranu
+	Activity.LoadLayout("JobScreen")															'załadaowanie elementów ekranu :JobScreen"
+	InsertJobToListView
 	
 End Sub
 
-Private Sub BluetoothEvent_StatusReadyReceived
-	
-	'Bluetooth.InfoWindow("Status sterownika : OK")
-	Dim TaskTab = AxisMovesDataGrid.GetTable As Map													'pobranie wszystkich danych z tabeli
-	Dim Row As Map																					'dane wiersza tabeli
-																							
-	If TaskTab.Size > SendRowIndex And IsDataSending Then
-		ProgressDialogShow("Wysyłanie w toku...")
-		Row = TaskTab.GetValueAt(SendRowIndex)
-		Dim Blend = Row.Get("Blend") As String
-		
-		If Blend == "true" And SendRowIndex < TaskTab.Size - 1 Then
-			Log("Send TASK")
-			Bluetooth.SendWorkFrame("TASK", Row)
-		End If
-		
-		If Blend == "true" And SendRowIndex == TaskTab.Size - 1 And Blend == OldBlend Then
-			Log("Send ETASK")
-			Bluetooth.SendWorkFrame("ETASK", Row)
-		End If
-		
-		If Blend == "true" And SendRowIndex == TaskTab.Size - 1 And Blend <> OldBlend Then
-			Log("Send MOVE")
-			Bluetooth.SendWorkFrame("MOVE", Row)
-		End If
-		
-		If Blend == "false" And (Blend == OldBlend Or SendRowIndex == 0) Then
-			Log("Send MOVE")
-			Bluetooth.SendWorkFrame("MOVE", Row)
-		End If
-		
-		If Blend == "false" And Blend <> OldBlend And SendRowIndex > 0 Then
-			Log("Send ETASK")
-			Bluetooth.SendWorkFrame("ETASK", Row)
-		End If
-		
-		SendRowIndex = SendRowIndex + 1
-		OldBlend = Blend
-		
-		If SendRowIndex == TaskTab.Size Then
-			IsDataSending = False
-			SendRowIndex = 0
-			OldBlend = ""
-			ProgressDialogHide
-			Bluetooth.InfoWindow("Dane wyłane poprawnie.")
-		End If
-	Else
-		If IsDataSending Then
-			Bluetooth.WarningWindow("Brak danych do wysłania.")
-		End If
-	End If
-	
-End Sub
 
 Private Sub AxisSeekBar_ValueChanged (Value As Int, UserChanged As Boolean)
 	
@@ -380,6 +335,156 @@ End Sub
 
 #End Region
 
+#Region USART Events
+
+Private Sub BluetoothEvent_DataAck
+	
+	'Bluetooth.InfoWindow("Status sterownika : OK")
+	Dim TaskTab = AxisMovesDataGrid.GetTable As Map													'pobranie wszystkich danych z tabeli
+	Dim Row As Map																					'dane wiersza tabeli
+																							
+	If TaskTab.Size > SendRowIndex And IsDataSending Then					
+		ProgressDialogShow("Wysyłanie w toku...")
+		Row = TaskTab.GetValueAt(SendRowIndex)
+		Dim Blend = Row.Get("Blend") As String
+		
+		If Blend == "true" And SendRowIndex < TaskTab.Size - 1 Then
+			Log("Send TASK")
+			Bluetooth.SendWorkFrame("TASK", Row)
+		End If
+		
+		If Blend == "true" And SendRowIndex == TaskTab.Size - 1 And Blend == OldBlend Then
+			Log("Send ETASK")
+			Bluetooth.SendWorkFrame("ETASK", Row)
+		End If
+		
+		If Blend == "true" And SendRowIndex == TaskTab.Size - 1 And Blend <> OldBlend Then
+			Log("Send MOVE")
+			Bluetooth.SendWorkFrame("MOVE", Row)
+		End If
+		
+		If Blend == "false" And (Blend == OldBlend Or SendRowIndex == 0) Then
+			Log("Send MOVE")
+			Bluetooth.SendWorkFrame("MOVE", Row)
+		End If
+		
+		If Blend == "false" And Blend <> OldBlend And SendRowIndex > 0 Then
+			Log("Send ETASK")
+			Bluetooth.SendWorkFrame("ETASK", Row)
+		End If
+		
+		SendRowIndex = SendRowIndex + 1
+		OldBlend = Blend
+		
+		If SendRowIndex == TaskTab.Size Then
+			IsDataSending = False
+			SendRowIndex = 0
+			OldBlend = ""
+			ProgressDialogHide
+			Bluetooth.InfoWindow("Dane wyłane poprawnie.")
+		End If
+	Else
+		If IsDataSending Then
+			Bluetooth.WarningWindow("Brak danych do wysłania.")
+		End If
+		If IsConnecting Then
+			Bluetooth.InfoWindow("Sterownik podłączony.")
+		End If
+	End If
+	
+End Sub
+
+Private Sub BluetoothEvent_AdapterConnected
+	
+	BtConnectButton.Disable																	'zablokowanie przycisku wyszukiwanie urządzeń bluetooth
+	DriverConnectButton.Enable																'odblokowanie przycisku połączenia ze sterownikiem
+	
+End Sub
+
+Private Sub BluetoothEvent_DriverConnected
+	
+	DriverDisConnectButton.Enable															'odblokowanie przycisku odłączenia od sterownikiem
+	TaskSetupButton.Enable																	'odblokowanie przycisku przełączania na ekran ustawień
+	DriverConnectButton.Disable																'zablokowanie przycisku połączenia ze sterownikiem
+	ProgressDialogHide																		'ukrycie okna postępu podłączania
+	Bluetooth.InfoWindow("Sterownik podłączony.")											'wyświetlenie okna informującego o nawiązaniu połaczenia ze sterownikiem
+	
+End Sub
+
+Private Sub BluetoothEvent_DriverDisConnect
+	
+	DriverConnectButton.Enable																'odblokowanie przycisku połączenia ze sterownikiem
+	DriverDisConnectButton.Disable															'zablokowanie przycisku odłączenia od sterownikiem
+	TaskSetupButton.Disable																	'zablokowanie przycisku przełączenia na ekran ustawień
+	ProgressDialogHide																		'ukrycie okna postępu podłączania
+	Bluetooth.InfoWindow("Sterownik odłączony.")											'wyświetlenie okna informującego o zerwaniu połączenia
+	
+End Sub
+
+#End Region
+
+#Region JobScreen
+
+Private Sub CreateJob
+	
+	Dim JobName = "Job_" & JobIndex  As String													'nazwa pracy
+	Dim TaskTab As Map																			'tabela zadań
+	TaskTab.Initialize																			'inicjalizacja tabeli zadań
+	
+	Dim moves = AxisMovesDataGrid.GetTable As Map												'odczyt danych z tabeli ruchów
+	For i = 0 To moves.Size - 1																	'iteracja po kopii danych z tabeli ruchów
+		Dim move = moves.GetValueAt(i) As Map													'pobranie danych jednego ruchu
+		
+		Dim name = move.Get("Name") As String													'pobranie nazwy osi ze sprawdzanego ruchu
+		Dim angle =  move.Get("Angle") As String												'pobranie kąta - || -
+		Dim speed = move.Get("Speed") As String													'pobranie prędkości - || -
+		Dim dir = move.Get("Dir") As String														'pobranie kierunku - || -
+		Dim blend = move.Get("Blend") As String													'pobranie informacji o miksowaniu - || -
+		
+		Dim RowCopy As Map																		'utworzenie kopi wiersza tabeli ruchów
+		RowCopy.Initialize																		'inicjalizacja kopii wiersza tabeli ruchów
+		RowCopy.Put("Name", name)																'zapis nazwy osi do kopii wiersza
+		RowCopy.Put("Angle", angle)																'zapis kąta osi do kopii wiersza
+		RowCopy.Put("Speed", speed)																'zapis prędkości osi do kopii wiersza
+		RowCopy.Put("Dir", dir)																	'zapis kierunku osi do kopii wiersza
+		RowCopy.Put("Blend", blend)																'zapis informacji o miksowaniu ruchu osi do kopii wiersza
+		
+		TaskTab.Put(name, RowCopy)																'umieszczenie kopii wiersza w tabeli zadań
+	Next													
+	Job.Put(JobName, TaskTab)																	'zapis tabeli zadań w tabeli pracy
+	JobIndex = JobIndex + 1
+	
+End Sub
+
+Private Sub InsertJobToListView
+	
+	For i = 0 To Job.Size - 1																	'iteracja po liście prac
+		Dim JobName = Job.GetKeyAt(i) As String													'pobranie nazwy pracy
+		Dim TaskNames = " " As String															'zmienna zawierać będzie nazwy osi w akrualne pracy
+		Dim Task = Job.Get(JobName) As Map														'pobranie zadania z listy prac
+		For j = 0 To Task.Size - 1																'iteracja po liście osi w zadaniu
+			TaskNames = TaskNames & " " & Task.GetKeyAt(j)										'pobieranie nazwy osi z zadania
+		Next
+		JobsListView.AddTwoLines2(JobName, TaskNames, Job.GetValueAt(i))						'wstawienie pracy do kontrolki ListView
+	Next
+	JobsListView.TwoLinesLayout.SecondLabel.TextColor = Colors.Black
+	
+End Sub
+
+
+Private Sub JobsListView_ItemClick (Position As Int, Value As Object)
+	
+End Sub
+
+
+Private Sub SendJobButton_Click
+	
+End Sub
 
 
 
+Private Sub BackButton_Click
+	
+End Sub
+
+#End Region

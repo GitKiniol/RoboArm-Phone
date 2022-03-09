@@ -4,7 +4,11 @@ ModulesStructureVersion=1
 Type=Class
 Version=11.2
 @EndOfDesignText@
-#Event: StatusReadyReceived
+#Event: DataAck
+#Event: AdapterConnected
+#Event: DriverConnected
+#Event: DriverDisConnect
+
 'Zmienne globalne  (w zakresie klasy)
 Sub Class_Globals
 	
@@ -131,15 +135,17 @@ Public Sub Send(Message As String)
 	
 End Sub
 
-Public Sub SendStatusFrame
+Public Sub SendStatusFrame(StatusValue As String)
+	
 	Send("SF")
 	Send("STATUS")
-	Send("0")
+	Send(StatusValue)
 	Send("0")
 	Send("0")
 	Send("0")
 	Send("0")
 	Send("EF")
+	
 End Sub
 
 Public Sub SendWorkFrame(FrameType As String, FrameData As Map)
@@ -172,18 +178,31 @@ Public Sub SendWorkFrame(FrameType As String, FrameData As Map)
 	
 End Sub
 
-Private Sub GetData(DataText As String) As Boolean
+Private Sub GetData(DataText As String) As Int
 	
 	ReceivedFrame.Add(DataText.Trim)												'zapisz odebrane dane
 	If ReceivedFrame.Size == 8 Then													'jeśli odebrano 7 pakietów to:
-		If ReceivedFrame.Get(0) == "SF" And ReceivedFrame.Get(2) == "1" Then		'sprawdź czy pakiety 0 i 2 mają odopowiednią zawartość, jeśli tak to:
-			ReceivedFrame.Initialize
-			Return True																'zwróć True
-		Else'																		'jeśli nie to:
-			Return False															'zwróć Fals
+		If ReceivedFrame.Get(0) == "SF" And ReceivedFrame.Get(7) == "EF" Then		'sprawdź czy ramka posiada prawidłowe kody początku i końca, jeśli tak to:
+			Dim Status = ReceivedFrame.Get(2) As Int								'odczytaj kod statusu
+			Select Status															'sprawdź kod statusu
+				Case 1																'jeśli kod statusu 1 to:
+					ReceivedFrame.Initialize										'czyszczenie zawartoci ramki
+					Return 1														'zwróć 1 (sterownik potwierdza odebranie danych)
+					
+				Case 2																'jeśli kod statusu 2 to:
+					ReceivedFrame.Initialize										'czyszczenie zawartoci ramki
+					Return 2														'zwróć 2 (sterownik potwierdza połączenie)
+				Case 3																'jeśli kod statusu 3 to:
+					ReceivedFrame.Initialize												'czyszczenie zawartoci ramki
+					Return 3														'zwróć 3 (sterownik potwierdza odłączenie)
+			End Select
+			Return 0
+		Else																		'jeśli ramka zawiera nieprawidłowe kody startu ikońca to:
+			ErrorWindow("Ramka zawiera błędne dane.")								'wyświetl okno błędu
+			Return 0																'zwróć cyfrę 0
 		End If
-	Else																			'jeśli jeszcze nie odebrano siedmiu pakietów, to:
-		Return False																'zwróć False
+	Else																			'jeśli ramka zawiera mniej niż 8 wartości to :
+		Return 0																	'zwróć cyfrę 0
 	End If
 	
 End Sub
@@ -210,7 +229,7 @@ End Sub
 
 Private Sub Adapter_DiscoveryFinished
 	
-	Connect("HC-05")																'podłącz urządzenie RoboArm
+	Connect("Destylator")																'podłącz urządzenie RoboArm
 	
 End Sub
 
@@ -229,6 +248,7 @@ Private Sub CommPort_Connected (Success As Boolean)
 		AsyncText.Initialize(Me, "AsyncText", CommPort.InputStream, CommPort.OutputStream)	'inicjalizacja komunikacji asynchronicznej
 		InfoWindow("Połączenie przebiegło pomyślnie")										'pokaż info
 		IsAdapterConnected = True															'ustaw zmienną informującą o stanie połaczenia
+		CallSub(mTarget, mEventName & "_AdapterConnected")									'wywołanie eventu potwierdzenia podłaczenie adaptera bluetooth
 		
 	Else																					'w przeciwnym razie :
 		ErrorWindow("Problem z nawiązaniem połączenia")										'wyświetl błąd połączenia		
@@ -246,9 +266,14 @@ End Sub
 Private Sub AsyncText_NewText (Text As String)
 	
 	Dim s = Text As String
-	If GetData(s) Then																'jeśli odebrano ramkę danych to:
-		CallSub(mTarget, mEventName & "_StatusReadyReceived")						'wywołanie eventu potwierdzenia odbioru
-	End If
+	Select GetData(s) 																'jeśli odebrano ramkę danych to:
+		Case 1
+			CallSub(mTarget, mEventName & "_DataAck")								'wywołanie eventu potwierdzenia odbioru danych
+		Case 2
+			CallSub(mTarget, mEventName & "_DriverConnected")						'wywołanie eventu potwierdzenia podłączenie sterownika
+		Case 3
+			CallSub(mTarget, mEventName & "_DriverDisConnect")						'wywołanie eventu potwierdzenia odłączenie sterownika
+	End Select
 	
 End Sub
 

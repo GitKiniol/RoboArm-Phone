@@ -110,6 +110,11 @@ End Sub
 
 Public Sub Enable
 	
+	mBase.Enabled = True														'aktywacja przycisku
+	ButtonPanel.Enabled = True
+	ButtonLabel.Enabled = True
+	Image.Enabled = True
+	
 End Sub
 
 Private Sub ButtonImageEvent_Click
