@@ -148,7 +148,6 @@ Sub Activity_Create(FirstTime As Boolean)
 	AutoSwitchScreenTimer.Initialize("SwitchScreenTimer", 1000)								'incjalizacja timera prełączającego SplashScreen na ConnectScreen
 	AutoSwitchScreenTimer.Enabled = True													'uruchomienie timera
 	Activity.LoadLayout("SplashScreen")														'ekran powitalny
-	Job.Initialize																			'inicjalizacja listy prac
 	
 End Sub
 
@@ -183,9 +182,7 @@ End Sub
 
 Private Sub TaskSetupButton_Click
 	
-	Activity.RemoveAllViews																	'usunięcie wyświetlanych elementów
-	
-	Activity.LoadLayout("TaskScreen")														'załaduj ekran ustawień parametrow ruchu
+	ShowTaskScreen
 	
 End Sub
 
@@ -214,6 +211,13 @@ End Sub
 #End Region
 
 #Region TaskScreen
+
+Private Sub ShowTaskScreen
+	
+	Activity.RemoveAllViews																		'usunięcie wyświetlanych elementów
+	Activity.LoadLayout("TaskScreen")															'załaduj ekran ustawień parametrow ruchu
+	
+End Sub
 
 Private Sub InsertAngleToLabel(Angle As String, AxisLeter As String)
 	
@@ -270,9 +274,7 @@ End Sub
 
 Private Sub JobScreenButton_Click
 	
-	Activity.RemoveAllViews																		'usunięcie wszystkich elementów z ekranu
-	Activity.LoadLayout("JobScreen")															'załadaowanie elementów ekranu :JobScreen"
-	InsertJobToListView
+	ShowJobScreen																				'wyświetl eran JobScreen
 	
 End Sub
 
@@ -425,6 +427,17 @@ End Sub
 
 #Region JobScreen
 
+Private Sub ShowJobScreen
+	
+	Activity.RemoveAllViews																		'usunięcie wszystkich elementów z ekranu
+	Activity.LoadLayout("JobScreen")															'załadaowanie elementów ekranu :JobScreen"
+	If Job.IsInitialized == False Then															'jeśli lista prac nie jest zainicjalizowana to:
+		Job.Initialize																			'inicjalizacja listy prac
+	End If
+	InsertJobToListView																			'uzupełnij listę prac
+	
+End Sub
+
 Private Sub CreateJob
 	
 	Dim JobName = "Job_" & JobIndex  As String													'nazwa pracy
@@ -450,7 +463,10 @@ Private Sub CreateJob
 		RowCopy.Put("Blend", blend)																'zapis informacji o miksowaniu ruchu osi do kopii wiersza
 		
 		TaskTab.Put(name, RowCopy)																'umieszczenie kopii wiersza w tabeli zadań
-	Next													
+	Next	
+	If Job.IsInitialized == False Then															'jeśli lista prac nie jest zainicjalizowana to:
+		Job.Initialize																			'inicjalizacja listy prac
+	End If
 	Job.Put(JobName, TaskTab)																	'zapis tabeli zadań w tabeli pracy
 	JobIndex = JobIndex + 1
 	
@@ -474,6 +490,10 @@ End Sub
 
 Private Sub JobsListView_ItemClick (Position As Int, Value As Object)
 	
+	Dim z As Map
+	z = Value
+	Dim c = Sender As Object
+	
 End Sub
 
 
@@ -484,6 +504,9 @@ End Sub
 
 
 Private Sub BackButton_Click
+	
+	Activity.RemoveAllViews																	'usunięcie wyświetlanych elementów
+	Activity.LoadLayout("TaskScreen")														'załaduj ekran ustawień parametrow ruchu
 	
 End Sub
 
