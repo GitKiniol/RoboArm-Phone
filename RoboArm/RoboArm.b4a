@@ -5,14 +5,15 @@ File11=phoneicon2d.png
 File12=Question.png
 File13=ramierobota2d.png
 File14=SearchBtIco.png
-File15=splashscreen.bal
-File16=SplashScreen.png
-File17=TaskScreen.bal
-File18=TaskScreenIco.png
-File19=Warning.png
+File15=SendIcon.png
+File16=splashscreen.bal
+File17=SplashScreen.png
+File18=TaskScreen.bal
+File19=TaskScreenIco.png
 File2=bluetoothadaptericon.png
-File20=wireleft.png
-File21=wireright.png
+File20=Warning.png
+File21=wireleft.png
+File22=wireright.png
 File3=ConnectScreen.bal
 File4=DefaultButtonImage.png
 File5=DriverConnectIco.png
@@ -34,6 +35,7 @@ FileGroup19=Default Group
 FileGroup2=Default Group
 FileGroup20=Default Group
 FileGroup21=Default Group
+FileGroup22=Default Group
 FileGroup3=Default Group
 FileGroup4=Default Group
 FileGroup5=Default Group
@@ -52,7 +54,7 @@ Module2=DataGridView
 Module3=ImageButton
 Module4=Starter
 Module5=USART
-NumberOfFiles=21
+NumberOfFiles=22
 NumberOfLibraries=4
 NumberOfModules=5
 Version=11.2
@@ -435,6 +437,8 @@ Private Sub ShowJobScreen
 		Job.Initialize																			'inicjalizacja listy prac
 	End If
 	InsertJobToListView																			'uzupełnij listę prac
+	BackButton.SetImage(LoadBitmap(File.DirAssets, "TaskScreenIco.png"))						'wstawienie ikony do przycisku powrotu na ekran parametrów
+	SendJobButton.SetImage(LoadBitmap(File.DirAssets, "SendIcon.png"))							'wstawienie ikony do przycisku wysyłania pracy
 	
 End Sub
 
