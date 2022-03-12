@@ -384,7 +384,6 @@ Private Sub BluetoothEvent_DataAck
 		Dim TaskTab = AxisMovesDataGrid.GetTable As Map													'pobranie wszystkich danych z tabeli
 		If TaskTab.Size > 0 Then																		'jeśli tabela zawiera dane, to:
 			OldBlend = SendTask(TaskTab)																'wyślij dane i zwróć informacje o miksowaniau ruchów
-			Log(SendRowIndex)
 			SendRowIndex = SendRowIndex + 1																'inkrementacja indexu wysyłanengo wiersza
 			
 			If SendRowIndex == TaskTab.Size Then														'jeśli index wiersza równy liczbie elementów tablicy, to:
@@ -400,7 +399,25 @@ Private Sub BluetoothEvent_DataAck
 	End If
 	
 	If IsJobSending Then
-		
+		Dim TaskFromJob = JobsListView.GetItem(SendJobIndex) As Map										'pobranie zadania z listy prac
+		If TaskFromJob.Size > 0 Then																	'jeśli tabeli zawiera dane, to:
+			OldBlend = SendTask(TaskFromJob)															'wyślij dane i zwróć informacje o miksowaniau ruchów
+			SendRowIndex = SendRowIndex + 1																'inkrementacja indexu wysyłanengo wiersza
+			
+			If SendRowIndex == TaskFromJob.Size Then													'jeśli index wiersza równy liczbie elementów tablicy, to:
+				SendRowIndex = 0																		'ustawienie indexu wiersza na 0
+				OldBlend = ""																			'czyszczenie informacji o miksowaniu ruchów
+				SendJobIndex = SendJobIndex + 1															'Inkrementacja indexu pracy
+			End If
+			If SendJobIndex == JobsListView.Size Then													'jeśli index prac równy ilości prac na liście, to:
+				ProgressDialogHide																		'zamknięcie okna postępu wysyłania
+				Bluetooth.InfoWindow("Dane wyłane poprawnie.")											'wyświetlanie okna informacyjnego o poprawnym zakończeniu wysyłania
+				SendJobIndex = 0																		'zerowanie indexu wierszy prac
+				IsJobSending = False
+			End If
+		Else																							'jeśli tabela nie zawiera żadnych danych, to:
+			Bluetooth.WarningWindow("Brak danych do wysłania.")											'wyświetl okno ostrzegające o braku danych do wysłania
+		End If
 	End If
 	
 End Sub
@@ -510,7 +527,9 @@ End Sub
 
 Private Sub SendJobButton_Click
 	
-	
+	IsJobSending = True																			'zainicjowano wysyłanie danych
+	Bluetooth.SendStatusFrame("1")																'wysłanie rządania podania statusu(inicjowanie komunikacji)
+	ProgressDialogShow("Wysyłanie danych do sterownika...")										'okno postępu wysyłania
 	
 End Sub
 
