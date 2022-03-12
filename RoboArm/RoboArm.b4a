@@ -130,8 +130,10 @@ Sub Globals
 	Private SpeedValue As Label
 	
 	Private SendRowIndex = 0 As Int															'indeks wysyłenego wiersza tabeli
+	Private SendJobIndex = 0 As Int															'indeks wysyłanej pracy
 	Dim OldBlend As String																	'poprzednia wartść miksowania
-	Private IsDataSending = False As Boolean												'czy trwa wysyłanie danych
+	Private IsTaskSending = False As Boolean												'czy trwa wysyłanie zadań
+	Private IsJobSending = False As Boolean													'czy trwa wysyłanie prac
 	Private IsConnecting = False As Boolean													'czy trwa nawązywanie połaczenia
 	
 	Private Job As Map																		'praca dla robota(praca to sekwencja zadań, może się składać z jednego lub więcej Tasków)
@@ -260,11 +262,46 @@ Private Sub InsertAngleToDataGrid(AxisLeter As String)
 	
 End Sub
 
+Private Sub SendTask(DataTable As Map) As String
+	
+	Dim Row As Map																					'dane wiersza tabeli
+	
+	Row = DataTable.GetValueAt(SendRowIndex)
+	Dim Blend = Row.Get("Blend") As String
+		
+	If Blend == "true" And SendRowIndex < DataTable.Size - 1 Then
+		Log("Send TASK")
+		Bluetooth.SendWorkFrame("TASK", Row)
+	End If
+		
+	If Blend == "true" And SendRowIndex == DataTable.Size - 1 And Blend == OldBlend Then
+		Log("Send ETASK")
+		Bluetooth.SendWorkFrame("ETASK", Row)
+	End If
+		
+	If Blend == "true" And SendRowIndex == DataTable.Size - 1 And Blend <> OldBlend Then
+		Log("Send MOVE")
+		Bluetooth.SendWorkFrame("MOVE", Row)
+	End If
+		
+	If Blend == "false" And (Blend == OldBlend Or SendRowIndex == 0) Then
+		Log("Send MOVE")
+		Bluetooth.SendWorkFrame("MOVE", Row)
+	End If
+		
+	If Blend == "false" And Blend <> OldBlend And SendRowIndex > 0 Then
+		Log("Send ETASK")
+		Bluetooth.SendWorkFrame("ETASK", Row)
+	End If
+	Return Blend
+	
+End Sub
 
 Private Sub SendTaskButton_Click
 	
-	IsDataSending = True																		'zinicjowano wysyłanie danych
+	IsTaskSending = True																		'zainicjowano wysyłanie danych
 	Bluetooth.SendStatusFrame("1")																'wysłanie rządania podania statusu(inicjowanie komunikacji)
+	ProgressDialogShow("Wysyłanie danych do sterownika...")										'okno postępu wysyłania
 	
 End Sub
 
@@ -342,58 +379,28 @@ End Sub
 #Region USART Events
 
 Private Sub BluetoothEvent_DataAck
+																						
+	If IsTaskSending Then																				'jeśli zainicjalizowano wysylanie zadań,to:	
+		Dim TaskTab = AxisMovesDataGrid.GetTable As Map													'pobranie wszystkich danych z tabeli
+		If TaskTab.Size > 0 Then																		'jeśli tabela zawiera dane, to:
+			OldBlend = SendTask(TaskTab)																'wyślij dane i zwróć informacje o miksowaniau ruchów
+			Log(SendRowIndex)
+			SendRowIndex = SendRowIndex + 1																'inkrementacja indexu wysyłanengo wiersza
+			
+			If SendRowIndex == TaskTab.Size Then														'jeśli index wiersza równy liczbie elementów tablicy, to:
+				IsTaskSending = False																	'zerowanie flagi informującej o wysyłaniu zadania
+				SendRowIndex = 0																		'ustawienie indexu wiersza na 0
+				OldBlend = ""																			'czyszczenie informacji o miksowaniu ruchów
+				ProgressDialogHide																		'zamknięcie okna postępu wysyłania
+				Bluetooth.InfoWindow("Dane wyłane poprawnie.")											'wyświetlanie okna informacyjnego o poprawnym zakończeniu wysyłania
+			End If
+		Else																							'jeśli tabela nie zawiera żadnych danych, to:
+			Bluetooth.WarningWindow("Brak danych do wysłania.")											'wyświetl okno ostrzegające o braku danych do wysłania
+		End If
+	End If
 	
-	'Bluetooth.InfoWindow("Status sterownika : OK")
-	Dim TaskTab = AxisMovesDataGrid.GetTable As Map													'pobranie wszystkich danych z tabeli
-	Dim Row As Map																					'dane wiersza tabeli
-																							
-	If TaskTab.Size > SendRowIndex And IsDataSending Then					
-		ProgressDialogShow("Wysyłanie w toku...")
-		Row = TaskTab.GetValueAt(SendRowIndex)
-		Dim Blend = Row.Get("Blend") As String
+	If IsJobSending Then
 		
-		If Blend == "true" And SendRowIndex < TaskTab.Size - 1 Then
-			Log("Send TASK")
-			Bluetooth.SendWorkFrame("TASK", Row)
-		End If
-		
-		If Blend == "true" And SendRowIndex == TaskTab.Size - 1 And Blend == OldBlend Then
-			Log("Send ETASK")
-			Bluetooth.SendWorkFrame("ETASK", Row)
-		End If
-		
-		If Blend == "true" And SendRowIndex == TaskTab.Size - 1 And Blend <> OldBlend Then
-			Log("Send MOVE")
-			Bluetooth.SendWorkFrame("MOVE", Row)
-		End If
-		
-		If Blend == "false" And (Blend == OldBlend Or SendRowIndex == 0) Then
-			Log("Send MOVE")
-			Bluetooth.SendWorkFrame("MOVE", Row)
-		End If
-		
-		If Blend == "false" And Blend <> OldBlend And SendRowIndex > 0 Then
-			Log("Send ETASK")
-			Bluetooth.SendWorkFrame("ETASK", Row)
-		End If
-		
-		SendRowIndex = SendRowIndex + 1
-		OldBlend = Blend
-		
-		If SendRowIndex == TaskTab.Size Then
-			IsDataSending = False
-			SendRowIndex = 0
-			OldBlend = ""
-			ProgressDialogHide
-			Bluetooth.InfoWindow("Dane wyłane poprawnie.")
-		End If
-	Else
-		If IsDataSending Then
-			Bluetooth.WarningWindow("Brak danych do wysłania.")
-		End If
-		If IsConnecting Then
-			Bluetooth.InfoWindow("Sterownik podłączony.")
-		End If
 	End If
 	
 End Sub
@@ -502,6 +509,8 @@ End Sub
 
 
 Private Sub SendJobButton_Click
+	
+	
 	
 End Sub
 
