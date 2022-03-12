@@ -144,6 +144,7 @@ Sub Globals
 	Private JobProgress As ProgressBar
 	Private JobsListView As ListView
 	Private SendJobButton As ImageButton
+
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
@@ -516,11 +517,14 @@ Private Sub InsertJobToListView
 End Sub
 
 
-Private Sub JobsListView_ItemClick (Position As Int, Value As Object)
+Private Sub JobsListView_ItemLongClick (Position As Int, Value As Object)
 	
-	Dim z As Map
-	z = Value
-	Dim c = Sender As Object
+	Dim Del As Object = xui.Msgbox2Async("Usunąć wpis ?", "JOB", "Tak", "", "Nie", LoadBitmap(File.DirAssets, "Question.png"))		'wyświetl okno potwierdzenia usunięcia pracy
+	Wait For(Del) Msgbox_Result (Result As Int)
+	If Result == xui.DialogResponse_Positive Then
+		JobsListView.RemoveAt(Position)															'usuń pozycję z listy
+		Job.Remove(Job.GetKeyAt(Position))														'usuń wpis z tabeli pracy
+	End If
 	
 End Sub
 
@@ -534,11 +538,10 @@ Private Sub SendJobButton_Click
 End Sub
 
 
-
 Private Sub BackButton_Click
 	
-	Activity.RemoveAllViews																	'usunięcie wyświetlanych elementów
-	Activity.LoadLayout("TaskScreen")														'załaduj ekran ustawień parametrow ruchu
+	Activity.RemoveAllViews																		'usunięcie wyświetlanych elementów
+	Activity.LoadLayout("TaskScreen")															'załaduj ekran ustawień parametrow ruchu
 	
 End Sub
 
