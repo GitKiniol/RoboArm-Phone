@@ -1,4 +1,4 @@
-﻿ModuleBookmarks0=118
+﻿ModuleBookmarks0=121
 ModuleBookmarks1=
 ModuleBookmarks2=
 ModuleBookmarks3=
@@ -16,6 +16,6 @@ ModuleClosedNodes2=2,3,4,5,7,8,9,10,11,12
 ModuleClosedNodes3=
 ModuleClosedNodes4=1
 ModuleClosedNodes5=1,2,3
-NavigationStack=Wizualny projektant,JobScreen.bal,-100,1,Main,BluetoothEvent_DataAck,317,6,Main,CreateTaskSequence,405,0,Main,InsertTaskSequenceToListView,439,0,Main,ShowJobScreen,392,6,Main,SendTaskSequenceButton_Click,467,0,Wizualny projektant,TaskScreen.bal,-100,1,Main,TaskSequenceListView_ItemLongClick,455,0,Main,AddToTaskSequenceButton_Click,244,0,Main,Globals,82,6,USART,Adapter_DiscoveryFinished,226,1
+NavigationStack=Main,ShowJobScreen,392,6,Main,SendTaskSequenceButton_Click,467,0,Wizualny projektant,TaskScreen.bal,-100,1,Main,TaskSequenceListView_ItemLongClick,455,0,Main,AddToTaskSequenceButton_Click,244,0,USART,Adapter_DiscoveryFinished,223,1,Main,Globals,86,6,Main,BackButton_Click,486,0,Wizualny projektant,JobScreen.bal,-100,6,Main,RunJobButton_Click,492,0
 SelectedBuild=0
 VisibleModules=4,3,2,1,5

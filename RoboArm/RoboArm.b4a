@@ -141,6 +141,9 @@ Sub Globals
 	Private TaskSequenceListView As ListView
 	Private SendTaskSequenceButton As ImageButton
 
+	Private RunJobButton As ImageButton
+	Private StopJobButton As ImageButton
+	
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
@@ -537,6 +540,14 @@ Private Sub BackButton_Click
 	
 	Activity.RemoveAllViews																		'usunięcie wyświetlanych elementów
 	Activity.LoadLayout("TaskScreen")															'załaduj ekran ustawień parametrow ruchu
+	
+End Sub
+
+Private Sub StopJobButton_Click
+	
+End Sub
+
+Private Sub RunJobButton_Click
 	
 End Sub
 
