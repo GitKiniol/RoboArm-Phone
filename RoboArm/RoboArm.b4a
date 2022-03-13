@@ -1,19 +1,18 @@
 ﻿Build1=Default,b4a.example
 File1=AppIcon.png
-File10=Layout.bal
-File11=phoneicon2d.png
-File12=Question.png
-File13=ramierobota2d.png
-File14=SearchBtIco.png
-File15=SendIcon.png
-File16=splashscreen.bal
-File17=SplashScreen.png
-File18=TaskScreen.bal
-File19=TaskScreenIco.png
+File10=phoneicon2d.png
+File11=Question.png
+File12=ramierobota2d.png
+File13=SearchBtIco.png
+File14=SendIcon.png
+File15=splashscreen.bal
+File16=SplashScreen.png
+File17=TaskScreen.bal
+File18=TaskScreenIco.png
+File19=Warning.png
 File2=bluetoothadaptericon.png
-File20=Warning.png
-File21=wireleft.png
-File22=wireright.png
+File20=wireleft.png
+File21=wireright.png
 File3=ConnectScreen.bal
 File4=DefaultButtonImage.png
 File5=DriverConnectIco.png
@@ -35,7 +34,6 @@ FileGroup19=Default Group
 FileGroup2=Default Group
 FileGroup20=Default Group
 FileGroup21=Default Group
-FileGroup22=Default Group
 FileGroup3=Default Group
 FileGroup4=Default Group
 FileGroup5=Default Group
@@ -54,7 +52,7 @@ Module2=DataGridView
 Module3=ImageButton
 Module4=Starter
 Module5=USART
-NumberOfFiles=22
+NumberOfFiles=21
 NumberOfLibraries=4
 NumberOfModules=5
 Version=11.2
@@ -98,7 +96,7 @@ Sub Globals
 	Private TaskSetupButton As ImageButton													'przełączenie na ekran ustawień parametrów ruchu
 	
 	Private AcisCLabel As Label
-	Private AddToJobButton As Button
+	Private AddToTaskSequenceButton As Button
 	Private AxisACheckBox As CheckBox
 	Private AxisALabel As Label
 	Private AxisASeekBar As SeekBar
@@ -130,20 +128,18 @@ Sub Globals
 	Private SpeedValue As Label
 	
 	Private SendRowIndex = 0 As Int															'indeks wysyłenego wiersza tabeli
-	Private SendJobIndex = 0 As Int															'indeks wysyłanej pracy
-	Dim OldBlend As String																	'poprzednia wartść miksowania
+	Private SendTaskSequenceIndex = 0 As Int												'indeks wysyłanej sekwenci zadń
+	Private OldBlend As String																'poprzednia wartść miksowania
 	Private IsTaskSending = False As Boolean												'czy trwa wysyłanie zadań
-	Private IsJobSending = False As Boolean													'czy trwa wysyłanie prac
-	Private IsConnecting = False As Boolean													'czy trwa nawązywanie połaczenia
+	Private IsTaskSequenceSending = False As Boolean										'czy trwa wysyłanie sekwencji zadań
 	
-	Private Job As Map																		'praca dla robota(praca to sekwencja zadań, może się składać z jednego lub więcej Tasków)
-	Private JobIndex = 1 As Int																'index pracy
-	
-	Private AnimationView As WebView
+	Private TaskSequence As Map																'praca dla robota(praca to sekwencja zadań, może się składać z jednego lub więcej Tasków)
+	Private TaskSequenceIndex = 1 As Int													'index sekwencji zadań
+
 	Private BackButton As ImageButton
-	Private JobProgress As ProgressBar
-	Private JobsListView As ListView
-	Private SendJobButton As ImageButton
+	Private TaskSequenceProgress As ProgressBar
+	Private TaskSequenceListView As ListView
+	Private SendTaskSequenceButton As ImageButton
 
 End Sub
 
@@ -200,7 +196,6 @@ End Sub
 Private Sub DriverConnectButton_Click
 	
 	Bluetooth.SendStatusFrame("2")															'wyśli żądanie połączenia
-	IsConnecting = True																		'ustaw zmienną trwa podłączanie na true
 	ProgressDialogShow("Nawiązywanie połaczenia ze sterownikiem.")							'okno postępu łączenia ze strownikiem
 	
 End Sub
@@ -306,9 +301,9 @@ Private Sub SendTaskButton_Click
 	
 End Sub
 
-Private Sub AddToJobButton_Click
+Private Sub AddToTaskSequenceButton_Click
 	
-	CreateJob																					'utworzenie tzw. "JOB"
+	CreateTaskSequence																			'utworzenie sekwencji zadań
 	
 End Sub
 
@@ -399,8 +394,8 @@ Private Sub BluetoothEvent_DataAck
 		End If
 	End If
 	
-	If IsJobSending Then
-		Dim TaskFromJob = JobsListView.GetItem(SendJobIndex) As Map										'pobranie zadania z listy prac
+	If IsTaskSequenceSending Then																		'jeśli zainicjowano wysyłanie sekwencji zadań, to:
+		Dim TaskFromJob = TaskSequenceListView.GetItem(SendTaskSequenceIndex) As Map					'pobranie zadania z listy sekwencji zadań
 		If TaskFromJob.Size > 0 Then																	'jeśli tabeli zawiera dane, to:
 			OldBlend = SendTask(TaskFromJob)															'wyślij dane i zwróć informacje o miksowaniau ruchów
 			SendRowIndex = SendRowIndex + 1																'inkrementacja indexu wysyłanengo wiersza
@@ -408,13 +403,13 @@ Private Sub BluetoothEvent_DataAck
 			If SendRowIndex == TaskFromJob.Size Then													'jeśli index wiersza równy liczbie elementów tablicy, to:
 				SendRowIndex = 0																		'ustawienie indexu wiersza na 0
 				OldBlend = ""																			'czyszczenie informacji o miksowaniu ruchów
-				SendJobIndex = SendJobIndex + 1															'Inkrementacja indexu pracy
+				SendTaskSequenceIndex = SendTaskSequenceIndex + 1										'Inkrementacja indexu pracy
 			End If
-			If SendJobIndex == JobsListView.Size Then													'jeśli index prac równy ilości prac na liście, to:
+			If SendTaskSequenceIndex == TaskSequenceListView.Size Then									'jeśli index sekwencji zadań równy ilości sekwencji zadań na liście, to:
 				ProgressDialogHide																		'zamknięcie okna postępu wysyłania
 				Bluetooth.InfoWindow("Dane wyłane poprawnie.")											'wyświetlanie okna informacyjnego o poprawnym zakończeniu wysyłania
-				SendJobIndex = 0																		'zerowanie indexu wierszy prac
-				IsJobSending = False
+				SendTaskSequenceIndex = 0																'zerowanie indexu wierszy sekwencji zadań
+				IsTaskSequenceSending = False															'zerowanie flagi inicjującej wysyłania sekwencji zadań
 			End If
 		Else																							'jeśli tabela nie zawiera żadnych danych, to:
 			Bluetooth.WarningWindow("Brak danych do wysłania.")											'wyświetl okno ostrzegające o braku danych do wysłania
@@ -458,18 +453,18 @@ Private Sub ShowJobScreen
 	
 	Activity.RemoveAllViews																		'usunięcie wszystkich elementów z ekranu
 	Activity.LoadLayout("JobScreen")															'załadaowanie elementów ekranu :JobScreen"
-	If Job.IsInitialized == False Then															'jeśli lista prac nie jest zainicjalizowana to:
-		Job.Initialize																			'inicjalizacja listy prac
+	If TaskSequence.IsInitialized == False Then													'jeśli lista sekwencji zadań nie jest zainicjalizowana to:
+		TaskSequence.Initialize																	'inicjalizacja listy sekwencji zadań
 	End If
-	InsertJobToListView																			'uzupełnij listę prac
+	InsertTaskSequenceToListView																'uzupełnij listę sekwencji zadań
 	BackButton.SetImage(LoadBitmap(File.DirAssets, "TaskScreenIco.png"))						'wstawienie ikony do przycisku powrotu na ekran parametrów
-	SendJobButton.SetImage(LoadBitmap(File.DirAssets, "SendIcon.png"))							'wstawienie ikony do przycisku wysyłania pracy
+	SendTaskSequenceButton.SetImage(LoadBitmap(File.DirAssets, "SendIcon.png"))					'wstawienie ikony do przycisku wysyłania sekwencji zadań
 	
 End Sub
 
-Private Sub CreateJob
+Private Sub CreateTaskSequence
 	
-	Dim JobName = "Job_" & JobIndex  As String													'nazwa pracy
+	Dim TaskSequenceName = "TaskSequence_" & TaskSequenceIndex  As String						'nazwa sekwencji zadań
 	Dim TaskTab As Map																			'tabela zadań
 	TaskTab.Initialize																			'inicjalizacja tabeli zadań
 	
@@ -493,45 +488,45 @@ Private Sub CreateJob
 		
 		TaskTab.Put(name, RowCopy)																'umieszczenie kopii wiersza w tabeli zadań
 	Next	
-	If Job.IsInitialized == False Then															'jeśli lista prac nie jest zainicjalizowana to:
-		Job.Initialize																			'inicjalizacja listy prac
+	If TaskSequence.IsInitialized == False Then													'jeśli lista sekwencji zadań nie jest zainicjalizowana to:
+		TaskSequence.Initialize																	'inicjalizacja listy sekwencji zadań
 	End If
-	Job.Put(JobName, TaskTab)																	'zapis tabeli zadań w tabeli pracy
-	JobIndex = JobIndex + 1
+	TaskSequence.Put(TaskSequenceName, TaskTab)													'zapis tabeli zadań w tabeli pracy
+	TaskSequenceIndex = TaskSequenceIndex + 1													'inkrementacja indexu wysyłanej sekwencji zadań
 	
 End Sub
 
-Private Sub InsertJobToListView
+Private Sub InsertTaskSequenceToListView
 	
-	For i = 0 To Job.Size - 1																	'iteracja po liście prac
-		Dim JobName = Job.GetKeyAt(i) As String													'pobranie nazwy pracy
-		Dim TaskNames = " " As String															'zmienna zawierać będzie nazwy osi w akrualne pracy
-		Dim Task = Job.Get(JobName) As Map														'pobranie zadania z listy prac
+	For i = 0 To TaskSequence.Size - 1															'iteracja po liście sekwencji zadań
+		Dim TaskSequenceName = TaskSequence.GetKeyAt(i) As String								'pobranie nazwy sekwencji zadań
+		Dim TaskNames = " " As String															'zmienna zawierać będzie nazwy osi w aktualnej sekwencji zadań
+		Dim Task = TaskSequence.Get(TaskSequenceName) As Map									'pobranie zadania z listy sekwencji zadań
 		For j = 0 To Task.Size - 1																'iteracja po liście osi w zadaniu
 			TaskNames = TaskNames & " " & Task.GetKeyAt(j)										'pobieranie nazwy osi z zadania
 		Next
-		JobsListView.AddTwoLines2(JobName, TaskNames, Job.GetValueAt(i))						'wstawienie pracy do kontrolki ListView
+		TaskSequenceListView.AddTwoLines2(TaskSequenceName, TaskNames, TaskSequence.GetValueAt(i))		'wstawienie sekwencji zadań do kontrolki ListView
 	Next
-	JobsListView.TwoLinesLayout.SecondLabel.TextColor = Colors.Black
+	TaskSequenceListView.TwoLinesLayout.SecondLabel.TextColor = Colors.Black					'ustawienie koloru listy sekwencji zadań
 	
 End Sub
 
 
-Private Sub JobsListView_ItemLongClick (Position As Int, Value As Object)
+Private Sub TaskSequenceListView_ItemLongClick (Position As Int, Value As Object)
 	
-	Dim Del As Object = xui.Msgbox2Async("Usunąć wpis ?", "JOB", "Tak", "", "Nie", LoadBitmap(File.DirAssets, "Question.png"))		'wyświetl okno potwierdzenia usunięcia pracy
+	Dim Del As Object = xui.Msgbox2Async("Usunąć wpis ?", "JOB", "Tak", "", "Nie", LoadBitmap(File.DirAssets, "Question.png"))		'wyświetl okno potwierdzenia usunięcia sekwencji zadań
 	Wait For(Del) Msgbox_Result (Result As Int)
 	If Result == xui.DialogResponse_Positive Then
-		JobsListView.RemoveAt(Position)															'usuń pozycję z listy
-		Job.Remove(Job.GetKeyAt(Position))														'usuń wpis z tabeli pracy
+		TaskSequenceListView.RemoveAt(Position)													'usuń pozycję z listy
+		TaskSequence.Remove(TaskSequence.GetKeyAt(Position))									'usuń wpis z tabeli sekwencji zadań
 	End If
 	
 End Sub
 
 
-Private Sub SendJobButton_Click
+Private Sub SendTaskSequenceButton_Click
 	
-	IsJobSending = True																			'zainicjowano wysyłanie danych
+	IsTaskSequenceSending = True																'zainicjowano wysyłanie danych
 	Bluetooth.SendStatusFrame("1")																'wysłanie rządania podania statusu(inicjowanie komunikacji)
 	ProgressDialogShow("Wysyłanie danych do sterownika...")										'okno postępu wysyłania
 	

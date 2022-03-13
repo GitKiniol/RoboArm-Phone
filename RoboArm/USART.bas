@@ -229,7 +229,8 @@ End Sub
 
 Private Sub Adapter_DiscoveryFinished
 	
-	Connect("Destylator")																'podłącz urządzenie RoboArm
+	'Connect("Destylator")	
+	Connect("HC-05")															'podłącz urządzenie RoboArm
 	
 End Sub
 
