@@ -136,6 +136,9 @@ Sub Globals
 	Private OldBlend As String																'poprzednia wartść miksowania
 	Private IsTaskSending = False As Boolean												'czy trwa wysyłanie zadań
 	Private IsTaskSequenceSending = False As Boolean										'czy trwa wysyłanie sekwencji zadań
+	Private IsRunCommandSending = False As Boolean											'czy trwa wysyłanie komendy startu robota
+	Private IsStopCommandSending = False As Boolean											'czy trwa wysyłanie komendy startu robota
+	Private IsWorkInProgress = False As Boolean												'czy robot w trakcie pracy
 	
 	Private TaskSequence As Map																'praca dla robota(praca to sekwencja zadań, może się składać z jednego lub więcej Tasków)
 	Private TaskSequenceIndex = 1 As Int													'index sekwencji zadań
@@ -395,6 +398,10 @@ Private Sub BluetoothEvent_DataAck
 				OldBlend = ""																			'czyszczenie informacji o miksowaniu ruchów
 				ProgressDialogHide																		'zamknięcie okna postępu wysyłania
 				Bluetooth.InfoWindow("Dane wyłane poprawnie.")											'wyświetlanie okna informacyjnego o poprawnym zakończeniu wysyłania
+				StopJobButton.Enable																	'odblokowanie przycisku
+				RunJobButton.Enable																		'odblokowanie przycisku
+				BackButton.Enable																		'odblokowanie przycisku
+				SendTaskSequenceButton.Enable															'odblokowanie przycisku
 			End If
 		Else																							'jeśli tabela nie zawiera żadnych danych, to:
 			Bluetooth.WarningWindow("Brak danych do wysłania.")											'wyświetl okno ostrzegające o braku danych do wysłania
@@ -417,6 +424,10 @@ Private Sub BluetoothEvent_DataAck
 				Bluetooth.InfoWindow("Dane wyłane poprawnie.")											'wyświetlanie okna informacyjnego o poprawnym zakończeniu wysyłania
 				SendTaskSequenceIndex = 0																'zerowanie indexu wierszy sekwencji zadań
 				IsTaskSequenceSending = False															'zerowanie flagi inicjującej wysyłania sekwencji zadań
+				StopJobButton.Enable																	'odblokowanie przycisku
+				RunJobButton.Enable																		'odblokowanie przycisku
+				BackButton.Enable																		'odblokowanie przycisku
+				SendTaskSequenceButton.Enable															'odblokowanie przycisku
 			End If
 		Else																							'jeśli tabela nie zawiera żadnych danych, to:
 			Bluetooth.WarningWindow("Brak danych do wysłania.")											'wyświetl okno ostrzegające o braku danych do wysłania
@@ -449,6 +460,74 @@ Private Sub BluetoothEvent_DriverDisConnect
 	TaskSetupButton.Disable																	'zablokowanie przycisku przełączenia na ekran ustawień
 	ProgressDialogHide																		'ukrycie okna postępu podłączania
 	Bluetooth.InfoWindow("Sterownik odłączony.")											'wyświetlenie okna informującego o zerwaniu połączenia
+	
+End Sub
+
+Private Sub BluetoothEvent_RunAck
+	
+	IsWorkInProgress = True																		'potwierdzenie uruchomienia robota
+	IsRunCommandSending = False																	'wysyłanie komendy startu zakończone
+	Bluetooth.InfoWindow("Robot został uruchomiony")											'wyświetl okno z informacją o uruchomieniu robota
+	StopJobButton.Enable																		'odblokowanie przycisku																			'odblokowanie przycisku
+	BackButton.Enable																			'odblokowanie przycisku
+	
+End Sub
+
+Private Sub BluetoothEvent_StopAck
+	
+	IsWorkInProgress = False																	'potwierdzenie zatrzymania robota
+	IsStopCommandSending = False																'zakończenie wysyłania komendy stopu
+	Bluetooth.InfoWindow("Robot został zatrzymany")												'wyświetl okno z informacją o zatrzymaniu robota
+	StopJobButton.Enable																		'odblokowanie przycisku
+	RunJobButton.Enable																			'odblokowanie przycisku
+	BackButton.Enable																			'odblokowanie przycisku
+	SendTaskSequenceButton.Enable																'odblokowanie przycisku
+	
+End Sub
+
+Private Sub BluetoothEvent_WorkDone
+	
+	IsWorkInProgress = False																	'praca robota zakończona
+	Bluetooth.InfoWindow("Robot zakończył działanie")											'wyświetl okno informaceyjne o zakończeniu pracy
+	RunJobButton.Enable																			'odblokowanie przycisku
+	SendTaskSequenceButton.Enable																'odblokowanie przycisku
+	
+End Sub
+
+Private Sub BluetoothEvent_DriverNotReady
+	
+	ProgressDialogHide																			'zamknięcie okienek postępu
+	Log(IsRunCommandSending)
+	If IsTaskSending Then																		'jeśli trwa wysyłanie zadania, to:
+		Bluetooth.ErrorWindow("Wysłanie zadanie niemożliwe !")									'wyświetl komunikat błędu
+	End If
+	
+	If IsTaskSequenceSending Then																'jeśli trwa wysyłanie sekwencji zadań, to:
+		Bluetooth.ErrorWindow("Wysłanie sekwencji zadań niemożliwe !")							'wyświetl komunikat błędu
+	End If
+	
+	If IsRunCommandSending Then																	'jeśli wysłano komende startu, to:
+		Bluetooth.ErrorWindow("Błąd wysyłania komendy ueuchomienia !")							'wyświetl komunikat błędu
+	End If
+	
+	If IsStopCommandSending Then																'jeśli wysłano komendę stopu, to:
+		Bluetooth.ErrorWindow("Błąd wysyłania komendy zatrzymania !")							'wyświetl komunikat błędu
+	End If
+	
+	If IsWorkInProgress Then																	'jeśli robot pracuje, to:
+		Bluetooth.ErrorWindow("Błąd pracy robota !")											'wyświetl komunikat błędu
+		IsWorkInProgress = False																'robot zatrzymany
+	End If
+	
+	IsTaskSending = False																		'
+	IsTaskSequenceSending = False
+	IsRunCommandSending = False
+	IsStopCommandSending = False
+	
+	StopJobButton.Enable																		'odblokowanie przycisku
+	RunJobButton.Enable																			'odblokowanie przycisku
+	BackButton.Enable																			'odblokowanie przycisku
+	SendTaskSequenceButton.Enable																'odblokowanie przycisku
 	
 End Sub
 
@@ -537,6 +616,11 @@ End Sub
 
 Private Sub SendTaskSequenceButton_Click
 	
+	StopJobButton.Disable																		'zablokowanie przycisku
+	RunJobButton.Disable																		'zablokowanie przycisku
+	BackButton.Disable																			'zablokowanie przycisku
+	SendTaskSequenceButton.Disable																'zablokowanie przycisku
+	
 	IsTaskSequenceSending = True																'zainicjowano wysyłanie danych
 	Bluetooth.SendStatusFrame("1")																'wysłanie rządania podania statusu(inicjowanie komunikacji)
 	ProgressDialogShow("Wysyłanie danych do sterownika...")										'okno postępu wysyłania
@@ -552,10 +636,28 @@ Private Sub BackButton_Click
 End Sub
 
 Private Sub StopJobButton_Click
+	 
+	StopJobButton.Disable																		'zablokowanie przycisku
+	RunJobButton.Disable																		'zablokowanie przycisku
+	BackButton.Disable																			'zablokowanie przycisku
+	SendTaskSequenceButton.Disable																'zablokowanie przycisku
+	
+	IsStopCommandSending = True																	'informacja że została wysłana komenda stop
+	Bluetooth.SendStopFrame																		'wysłanie komendy stop
 	
 End Sub
 
 Private Sub RunJobButton_Click
+	
+	StopJobButton.Disable																		'zablokowanie przycisku
+	RunJobButton.Disable																		'zablokowanie przycisku
+	BackButton.Disable																			'zablokowanie przycisku
+	SendTaskSequenceButton.Disable																'zablokowanie przycisku
+	
+	If IsWorkInProgress == False Then															'jeśli robot jest w spoczynku, to:
+		IsRunCommandSending = True																'informacja że została wysyłana komenda start
+		Bluetooth.SendRunFrame																	'wysłanie komendy start
+	End If
 	
 End Sub
 

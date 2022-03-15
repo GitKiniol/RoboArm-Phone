@@ -5,6 +5,10 @@ Type=Class
 Version=11.2
 @EndOfDesignText@
 #Event: DataAck
+#Event: RunAck
+#Event: StopAck
+#Event: WorkDone
+#Event: DriverNotReady
 #Event: AdapterConnected
 #Event: DriverConnected
 #Event: DriverDisConnect
@@ -74,7 +78,6 @@ Public Sub WarningWindow(Message As String)
 	xui.Msgbox2Async(Message, "BLUETOOTH", "", "", "OK", LoadBitmap(File.DirAssets, "Warning.png"))
 	
 End Sub
-
 
 Public Sub Run
 	
@@ -148,6 +151,32 @@ Public Sub SendStatusFrame(StatusValue As String)
 	
 End Sub
 
+Public Sub SendRunFrame
+	
+	Send("SF")
+	Send("JOB")
+	Send("0")
+	Send("0")
+	Send("0")
+	Send("0")
+	Send("0")
+	Send("EF")
+	
+End Sub
+
+Public Sub SendStopFrame
+	
+	Send("SF")
+	Send("EJOB")
+	Send("0")
+	Send("0")
+	Send("0")
+	Send("0")
+	Send("0")
+	Send("EF")
+	
+End Sub
+
 Public Sub SendWorkFrame(FrameType As String, FrameData As Map)
 	
 	Dim DataList As List															'lista danych do wysłania
@@ -188,13 +217,24 @@ Private Sub GetData(DataText As String) As Int
 				Case 1																'jeśli kod statusu 1 to:
 					ReceivedFrame.Initialize										'czyszczenie zawartoci ramki
 					Return 1														'zwróć 1 (sterownik potwierdza odebranie danych)
-					
 				Case 2																'jeśli kod statusu 2 to:
 					ReceivedFrame.Initialize										'czyszczenie zawartoci ramki
 					Return 2														'zwróć 2 (sterownik potwierdza połączenie)
 				Case 3																'jeśli kod statusu 3 to:
-					ReceivedFrame.Initialize												'czyszczenie zawartoci ramki
+					ReceivedFrame.Initialize										'czyszczenie zawartoci ramki
 					Return 3														'zwróć 3 (sterownik potwierdza odłączenie)
+				Case 4																'jeśli kod statusu 4 to:
+					ReceivedFrame.Initialize										'czyszczenie zawartoci ramki
+					Return 4														'zwróć 4 (sterownik potwierdza uruchomienie robota)
+				Case 5																'jeśli kod statusu 5 to:
+					ReceivedFrame.Initialize										'czyszczenie zawartoci ramki
+					Return 5														'zwróć 5 (sterownik potwierdza zatrzymanie robota)
+				Case 6																'jeśli kod statusu 6 to:
+					ReceivedFrame.Initialize										'czyszczenie zawartoci ramki
+					Return 6														'zwróć 6 (robot zakończył pracę)
+				Case 99																'jeśli kod statusu 99 to:
+					ReceivedFrame.Initialize										'czyszczenie zawartoci ramki
+					Return 99														'zwróć 99 (sterownik nie gotowy)
 			End Select
 			Return 0
 		Else																		'jeśli ramka zawiera nieprawidłowe kody startu ikońca to:
@@ -229,8 +269,8 @@ End Sub
 
 Private Sub Adapter_DiscoveryFinished
 	
-	'Connect("Destylator")	
-	Connect("HC-05")															'podłącz urządzenie RoboArm
+	Connect("Destylator")	
+	'Connect("HC-05")																'podłącz urządzenie RoboArm
 	
 End Sub
 
@@ -260,7 +300,7 @@ End Sub
 
 Private Sub AsyncText_Terminated
 	
-	WarningWindow("Połączenie zostało zerwane")												'informacjao zerwaniu połączenia
+	WarningWindow("Połączenie zostało zerwane")										'informacjao zerwaniu połączenia
 	
 End Sub
 
@@ -274,8 +314,15 @@ Private Sub AsyncText_NewText (Text As String)
 			CallSub(mTarget, mEventName & "_DriverConnected")						'wywołanie eventu potwierdzenia podłączenie sterownika
 		Case 3
 			CallSub(mTarget, mEventName & "_DriverDisConnect")						'wywołanie eventu potwierdzenia odłączenie sterownika
+		Case 4
+			CallSub(mTarget, mEventName & "_RunAck")								'wywołanie eventu potwierdzającego uruchomienie robota
+		Case 5 
+			CallSub(mTarget, mEventName & "_StopAck")								'wywołanie eventu potwierdzającego zatrzymanie robota
+		Case 6
+			CallSub(mTarget, mEventName & "_WorkDone")								'robot zakończył pracę
+		Case 99
+			CallSub(mTarget, mEventName & "_DriverNotReady")						'wywołanie eventu informującego że sterownik nie jest gotowy
 	End Select
-	
 End Sub
 
 
