@@ -3,16 +3,18 @@ File1=AppIcon.png
 File10=phoneicon2d.png
 File11=Question.png
 File12=ramierobota2d.png
-File13=SearchBtIco.png
-File14=SendIcon.png
-File15=splashscreen.bal
-File16=SplashScreen.png
-File17=TaskScreen.bal
-File18=TaskScreenIco.png
-File19=Warning.png
+File13=RunJob.png
+File14=SearchBtIco.png
+File15=SendIcon.png
+File16=splashscreen.bal
+File17=SplashScreen.png
+File18=StopJob.png
+File19=TaskScreen.bal
 File2=bluetoothadaptericon.png
-File20=wireleft.png
-File21=wireright.png
+File20=TaskScreenIco.png
+File21=Warning.png
+File22=wireleft.png
+File23=wireright.png
 File3=ConnectScreen.bal
 File4=DefaultButtonImage.png
 File5=DriverConnectIco.png
@@ -34,6 +36,8 @@ FileGroup19=Default Group
 FileGroup2=Default Group
 FileGroup20=Default Group
 FileGroup21=Default Group
+FileGroup22=Default Group
+FileGroup23=Default Group
 FileGroup3=Default Group
 FileGroup4=Default Group
 FileGroup5=Default Group
@@ -52,7 +56,7 @@ Module2=DataGridView
 Module3=ImageButton
 Module4=Starter
 Module5=USART
-NumberOfFiles=21
+NumberOfFiles=23
 NumberOfLibraries=4
 NumberOfModules=5
 Version=11.2
@@ -462,6 +466,9 @@ Private Sub ShowJobScreen
 	InsertTaskSequenceToListView																'uzupełnij listę sekwencji zadań
 	BackButton.SetImage(LoadBitmap(File.DirAssets, "TaskScreenIco.png"))						'wstawienie ikony do przycisku powrotu na ekran parametrów
 	SendTaskSequenceButton.SetImage(LoadBitmap(File.DirAssets, "SendIcon.png"))					'wstawienie ikony do przycisku wysyłania sekwencji zadań
+	RunJobButton.SetImage(LoadBitmap(File.DirAssets, "RunJob.png"))								'wstawienie ikony do przycisku uruchamiającego pracęrobota
+	StopJobButton.SetImage(LoadBitmap(File.DirAssets, "StopJob.png"))							'wstawienie ikony do przycisku zatrzymującego pracę robota
+	TaskSequenceListView.Color = Colors.DarkGray
 	
 End Sub
 
@@ -510,7 +517,8 @@ Private Sub InsertTaskSequenceToListView
 		Next
 		TaskSequenceListView.AddTwoLines2(TaskSequenceName, TaskNames, TaskSequence.GetValueAt(i))		'wstawienie sekwencji zadań do kontrolki ListView
 	Next
-	TaskSequenceListView.TwoLinesLayout.SecondLabel.TextColor = Colors.Black					'ustawienie koloru listy sekwencji zadań
+	TaskSequenceListView.TwoLinesLayout.Label.TextColor = Colors.RGB(4, 190, 214)				'ustawienie koloru nazwy sekwencji zadań
+	TaskSequenceListView.TwoLinesLayout.SecondLabel.TextColor = Colors.White					'ustawienie koloru listy sekwencji zadań
 	
 End Sub
 
