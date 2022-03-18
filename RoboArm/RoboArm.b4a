@@ -1,27 +1,29 @@
 ﻿Build1=Default,b4a.example
-File1=AppIcon.png
-File10=phoneicon2d.png
-File11=Question.png
-File12=ramierobota2d.png
-File13=RunJob.png
-File14=SearchBtIco.png
-File15=SendIcon.png
-File16=splashscreen.bal
-File17=SplashScreen.png
-File18=StopJob.png
-File19=TaskScreen.bal
-File2=bluetoothadaptericon.png
-File20=TaskScreenIco.png
-File21=Warning.png
-File22=wireleft.png
-File23=wireright.png
-File3=ConnectScreen.bal
-File4=DefaultButtonImage.png
-File5=DriverConnectIco.png
-File6=DriverDisConnectIco.png
-File7=Error.png
-File8=information.png
-File9=JobScreen.bal
+File1=AddToList.png
+File10=JobScreen.bal
+File11=phoneicon2d.png
+File12=Question.png
+File13=ramierobota2d.png
+File14=RunJob.png
+File15=SearchBtIco.png
+File16=SendIcon.png
+File17=ShowList.png
+File18=splashscreen.bal
+File19=SplashScreen.png
+File2=AppIcon.png
+File20=StopJob.png
+File21=TaskScreen.bal
+File22=TaskScreenIco.png
+File23=Warning.png
+File24=wireleft.png
+File25=wireright.png
+File3=bluetoothadaptericon.png
+File4=ConnectScreen.bal
+File5=DefaultButtonImage.png
+File6=DriverConnectIco.png
+File7=DriverDisConnectIco.png
+File8=Error.png
+File9=information.png
 FileGroup1=Default Group
 FileGroup10=Default Group
 FileGroup11=Default Group
@@ -38,6 +40,8 @@ FileGroup20=Default Group
 FileGroup21=Default Group
 FileGroup22=Default Group
 FileGroup23=Default Group
+FileGroup24=Default Group
+FileGroup25=Default Group
 FileGroup3=Default Group
 FileGroup4=Default Group
 FileGroup5=Default Group
@@ -56,7 +60,7 @@ Module2=DataGridView
 Module3=ImageButton
 Module4=Starter
 Module5=USART
-NumberOfFiles=23
+NumberOfFiles=25
 NumberOfLibraries=4
 NumberOfModules=5
 Version=11.2
@@ -98,9 +102,7 @@ Sub Globals
 	Private DriverConnectButton As ImageButton												'przycisk połączenia ze sterownikiem
 	Private DriverDisConnectButton As ImageButton											'przycisk do odłączania sterownika
 	Private TaskSetupButton As ImageButton													'przełączenie na ekran ustawień parametrów ruchu
-	
 	Private AcisCLabel As Label
-	Private AddToTaskSequenceButton As Button
 	Private AxisACheckBox As CheckBox
 	Private AxisALabel As Label
 	Private AxisASeekBar As SeekBar
@@ -125,12 +127,10 @@ Sub Globals
 	Private AxisZLabel As Label
 	Private AxisZSeekBar As SeekBar
 	Private AxisZValue As Label
-	Private JobScreenButton As Button
-	Private SendTaskButton As Button
 	Private SpeedLabel As Label
 	Private SpeedSeekBar As SeekBar
 	Private SpeedValue As Label
-	
+
 	Private SendRowIndex = 0 As Int															'indeks wysyłenego wiersza tabeli
 	Private SendTaskSequenceIndex = 0 As Int												'indeks wysyłanej sekwenci zadń
 	Private OldBlend As String																'poprzednia wartść miksowania
@@ -151,6 +151,8 @@ Sub Globals
 	Private RunJobButton As ImageButton
 	Private StopJobButton As ImageButton
 	
+	Private AddToSeqenceButton As Button
+	Private ShowListButton As Button
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
@@ -303,25 +305,19 @@ Private Sub SendTask(DataTable As Map) As String
 	
 End Sub
 
-Private Sub SendTaskButton_Click
-	
-	IsTaskSending = True																		'zainicjowano wysyłanie danych
-	Bluetooth.SendStatusFrame("1")																'wysłanie rządania podania statusu(inicjowanie komunikacji)
-	ProgressDialogShow("Wysyłanie danych do sterownika...")										'okno postępu wysyłania
-	
-End Sub
 
-Private Sub AddToTaskSequenceButton_Click
-	
-	CreateTaskSequence																			'utworzenie sekwencji zadań
-	
-End Sub
 
-Private Sub JobScreenButton_Click
-	
-	ShowJobScreen																				'wyświetl eran JobScreen
-	
-End Sub
+'Private Sub AddToTaskSequenceButton_Click
+'	
+'	CreateTaskSequence																			'utworzenie sekwencji zadań
+'	
+'End Sub
+
+'Private Sub JobScreenButton_Click
+'	
+'	ShowJobScreen																				'wyświetl eran JobScreen
+'	
+'End Sub
 
 
 Private Sub AxisSeekBar_ValueChanged (Value As Int, UserChanged As Boolean)
@@ -662,3 +658,18 @@ Private Sub RunJobButton_Click
 End Sub
 
 #End Region
+
+
+
+Private Sub AddToSeqenceButton_Click
+	
+	CreateTaskSequence
+	
+End Sub
+
+
+Private Sub ShowListButton_Click
+	
+	ShowJobScreen
+	
+End Sub
