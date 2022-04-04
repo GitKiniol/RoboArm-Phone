@@ -210,6 +210,7 @@ End Sub
 Private Sub GetData(DataText As String) As Int
 	
 	ReceivedFrame.Add(DataText.Trim)												'zapisz odebrane dane
+	Log(DataText.Trim)
 	If ReceivedFrame.Size == 8 Then													'jeśli odebrano 7 pakietów to:
 		If ReceivedFrame.Get(0) == "SF" And ReceivedFrame.Get(7) == "EF" Then		'sprawdź czy ramka posiada prawidłowe kody początku i końca, jeśli tak to:
 			Dim Status = ReceivedFrame.Get(2) As Int								'odczytaj kod statusu
@@ -264,12 +265,13 @@ Private Sub Adapter_DeviceFound (Name As String, MacAddress As String)
 	device.MAC = MacAddress															'macadres wykrytego urządzenia
 	AvailableDevices.Add(device)													'dodania wykrytego urządzenia do listy
 	ProgressDialogShow("Ilość urządzeń ... @".Replace("@", AvailableDevices.Size))	'aktualizacja okna postępu wyszukiwania
+	Log(Name)
 	
 End Sub
 
 Private Sub Adapter_DiscoveryFinished
 	
-	Connect("Destylator")	
+	Connect("ROBOARM")	
 	'Connect("HC-05")																'podłącz urządzenie RoboArm
 	
 End Sub
