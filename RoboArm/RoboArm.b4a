@@ -86,6 +86,7 @@ Sub Process_Globals
 	Private xui As XUI
 	Private Bluetooth As USART																'bluetooth
 	Private AutoSwitchScreenTimer As Timer													'timer odlicza czas trwania splash screena i przełacza na ekran nawiązywania połączenia
+	Private TimeoutConnectionTimer As Timer														'timer określa czas oczekiwania na odpowiedź sterownika
 	
 End Sub
 
@@ -186,7 +187,10 @@ Sub SwitchScreenTimer_Tick
 	
 	DriverConnectButton.Disable																'zablokowanie przycisku "PodłączSterownik"
 	DriverDisConnectButton.Disable															'zablokowanie przycisku "OdłączSterownik"
-	'TaskSetupButton.Disable																	'zablokowanie przycisku "Ekran Parametrów"
+	'TaskSetupButton.Disable																'zablokowanie przycisku "Ekran Parametrów"
+	BtAdapterIcon.Visible = False															'ukrycie ikony adaptera
+	WireRightIcon.Visible = False															'ukrycie ikony przewodu łączącego telefon z adapterem
+	WireLeftIcon.Visible = False															'ukrycie ikony przewodu łączącego adapter z robotem
 	 
 	
 End Sub
@@ -209,14 +213,25 @@ Private Sub DriverConnectButton_Click
 	
 	Bluetooth.SendStatusFrame("2")															'wyśli żądanie połączenia
 	ProgressDialogShow("Nawiązywanie połaczenia ze sterownikiem.")							'okno postępu łączenia ze strownikiem
+	TimeoutConnectionTimer.Initialize("TimeoutConnectionTimer", 3000)					    'inicjalizacja timera odnierzającego czas na odpowiedź sterownika
+	TimeoutConnectionTimer.Enabled = True													'uruchomienie timera
+	
+End Sub
+
+Sub TimeoutConnectionTimer_Tick
+	
+	ProgressDialogHide																		'ukrycie okna postępu łączenia
+	Bluetooth.ErrorWindow("Błąd połączenia!")												'wyświetlenie komunikadu błędu połączenia
+	TimeoutConnectionTimer.Enabled = False													'wyłączenie timera
 	
 End Sub
 
 Private Sub BtConnectButton_Click
 	
+	BtAdapterIcon.Visible = True															'wyświetlenie ikony adaptera BT
 	BtConnectButton.Disable																	'zablokuj przycisk wyszukiwania urządzeń bluetooth
 	Bluetooth.Serch																			'rozpocznij poszukiwania urządzeń
-	ProgressDialogShow("Zrywanie połaczenia ze sterownikiem.")								'okno postępu odłącania od strownikia
+	ProgressDialogShow("Nawiązywanie połączenia z adapterem BT.")							'okno postępu odłącania od adaptera
 	
 End Sub
 
@@ -226,8 +241,8 @@ End Sub
 
 Private Sub ShowTaskScreen
 	
-	Activity.RemoveAllViews																		'usunięcie wyświetlanych elementów
-	Activity.LoadLayout("TaskScreen")															'załaduj ekran ustawień parametrow ruchu
+	Activity.RemoveAllViews																	'usunięcie wyświetlanych elementów
+	Activity.LoadLayout("TaskScreen")														'załaduj ekran ustawień parametrow ruchu
 	
 End Sub
 
@@ -436,6 +451,7 @@ Private Sub BluetoothEvent_AdapterConnected
 	
 	BtConnectButton.Disable																	'zablokowanie przycisku wyszukiwanie urządzeń bluetooth
 	DriverConnectButton.Enable																'odblokowanie przycisku połączenia ze sterownikiem
+	WireRightIcon.Visible = True															'wyświetlenie ikony połączenia telefonu z adapterem
 	
 End Sub
 
@@ -446,6 +462,7 @@ Private Sub BluetoothEvent_DriverConnected
 	DriverConnectButton.Disable																'zablokowanie przycisku połączenia ze sterownikiem
 	ProgressDialogHide																		'ukrycie okna postępu podłączania
 	Bluetooth.InfoWindow("Sterownik podłączony.")											'wyświetlenie okna informującego o nawiązaniu połaczenia ze sterownikiem
+	WireLeftIcon.Visible = True																'wyświetlenie ikony przewodu łączącego adapter z robotem
 	
 End Sub
 
@@ -456,6 +473,7 @@ Private Sub BluetoothEvent_DriverDisConnect
 	TaskSetupButton.Disable																	'zablokowanie przycisku przełączenia na ekran ustawień
 	ProgressDialogHide																		'ukrycie okna postępu podłączania
 	Bluetooth.InfoWindow("Sterownik odłączony.")											'wyświetlenie okna informującego o zerwaniu połączenia
+	WireLeftIcon.Visible = False															'ukrycie ikony przewodu łączącego adapter z robotem
 	
 End Sub
 

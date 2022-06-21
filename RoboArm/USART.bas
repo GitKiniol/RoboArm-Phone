@@ -309,6 +309,7 @@ End Sub
 Private Sub AsyncText_NewText (Text As String)
 	
 	Dim s = Text As String
+	Log("Odebrane od robota : " & s)
 	Select GetData(s) 																'jeśli odebrano ramkę danych to:
 		Case 1
 			CallSub(mTarget, mEventName & "_DataAck")								'wywołanie eventu potwierdzenia odbioru danych
