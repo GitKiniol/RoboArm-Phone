@@ -16,6 +16,6 @@ ModuleClosedNodes2=2,3,4,5,7,8,9,10,11,12
 ModuleClosedNodes3=
 ModuleClosedNodes4=1
 ModuleClosedNodes5=1,2
-NavigationStack=Main,SendTask,254,0,Main,SwitchScreenTimer_Tick,124,0,Main,BluetoothEvent_DriverConnected,386,6,USART,CommPort_Connected,287,0,Main,BluetoothEvent_DriverDisConnect,397,0,Main,Process_Globals,21,6,Main,DriverConnectButton_Click,149,6,Main,TimeoutConnectionTimer_Tick,157,0,Wizualny projektant,ConnectScreen.bal,-100,1,Main,BtConnectButton_Click,168,6,Main,BluetoothEvent_DriverNotReady,482,0
+NavigationStack=Main,SwitchScreenTimer_Tick,124,0,Main,BluetoothEvent_DriverConnected,386,6,USART,CommPort_Connected,287,0,Main,BluetoothEvent_DriverDisConnect,397,0,Main,Process_Globals,21,6,Main,DriverConnectButton_Click,149,6,Main,TimeoutConnectionTimer_Tick,157,0,Wizualny projektant,ConnectScreen.bal,-100,1,Main,BtConnectButton_Click,168,6,Main,BluetoothEvent_DriverNotReady,482,0,Main,Globals,25,0
 SelectedBuild=0
 VisibleModules=4,3,2,1,5
