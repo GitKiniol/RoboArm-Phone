@@ -154,7 +154,6 @@ Sub Globals
 	
 	Private AddToSeqenceButton As Button
 	Private ShowListButton As Button
-	'Private ImageButton1 As ImageButton
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
@@ -244,6 +243,13 @@ Private Sub ShowTaskScreen
 	
 	Activity.RemoveAllViews																	'usunięcie wyświetlanych elementów
 	Activity.LoadLayout("TaskScreen")														'załaduj ekran ustawień parametrow ruchu
+	Log(TaskSequenceIndex)
+	If TaskSequenceIndex == 1 Then
+		ShowListButton.Enabled = False														'blokowanie przycisku przełączającego na ekran JOB
+	Else
+		ShowListButton.Enabled = True														'odblokowanie przycisku przełączającego na ekran JOB
+	End If
+	AddToSeqenceButton.Enabled = False														'blokowanie przycisku dodawania elementów do listy
 	
 End Sub
 
@@ -378,6 +384,12 @@ Private Sub AxisCheckBox_CheckedChange(Checked As Boolean)
 	End If
 	
 	InsertAngleToDataGrid(AxisName)																'wstaw kąt osi do tabeli
+	
+	If AxisACheckBox.Checked == False And AxisBCheckBox.Checked == False And AxisCCheckBox.Checked == False And AxisZCheckBox.Checked == False And AxisGCheckBox.Checked == False And AxisTCheckBox.Checked == False Then
+		AddToSeqenceButton.Enabled = False														'blokowanie przycisku dodawania elementów do listy
+	Else
+		AddToSeqenceButton.Enabled = True														'odblokowanie przycisku dodawania elementów do listy
+	End If
 	
 End Sub
 
@@ -621,6 +633,10 @@ Private Sub TaskSequenceListView_ItemLongClick (Position As Int, Value As Object
 	If Result == xui.DialogResponse_Positive Then
 		TaskSequenceListView.RemoveAt(Position)													'usuń pozycję z listy
 		TaskSequence.Remove(TaskSequence.GetKeyAt(Position))									'usuń wpis z tabeli sekwencji zadań
+		TaskSequenceIndex = TaskSequenceIndex - 1												'dekrementacja indeksu
+		If TaskSequenceIndex == 1 Then
+			SendTaskSequenceButton.Disable														'jeśli nie ma zadań na liście to zablokuj przycisk wysyłania
+		End If
 	End If
 	
 End Sub
@@ -640,8 +656,7 @@ End Sub
 
 Private Sub BackButton_Click
 	
-	Activity.RemoveAllViews																		'usunięcie wyświetlanych elementów
-	Activity.LoadLayout("TaskScreen")															'załaduj ekran ustawień parametrow ruchu
+	ShowTaskScreen
 	
 End Sub
 
@@ -677,17 +692,14 @@ End Sub
 
 Private Sub AddToSeqenceButton_Click
 	
-	CreateTaskSequence
+	CreateTaskSequence																		'generowanie elementu lity zadań
+	ShowListButton.Enabled = True															'odblokowanie przycisku przełączającego na ekran JOB
 	
 End Sub
 
 
 Private Sub ShowListButton_Click
 	
-	ShowJobScreen
+	ShowJobScreen																			'przełączenie na ekran JOB
 	
 End Sub
-
-'Private Sub ImageButton1_Click
-'	ToastMessageShow("Zostałem kliknięty !!", True)
-'End Sub
