@@ -154,6 +154,7 @@ Sub Globals
 	
 	Private AddToSeqenceButton As Button
 	Private ShowListButton As Button
+	'Private ImageButton1 As ImageButton
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
@@ -187,7 +188,7 @@ Sub SwitchScreenTimer_Tick
 	
 	DriverConnectButton.Disable																'zablokowanie przycisku "PodłączSterownik"
 	DriverDisConnectButton.Disable															'zablokowanie przycisku "OdłączSterownik"
-	'TaskSetupButton.Disable																'zablokowanie przycisku "Ekran Parametrów"
+	TaskSetupButton.Disable																	'zablokowanie przycisku "Ekran Parametrów"
 	BtAdapterIcon.Visible = False															'ukrycie ikony adaptera
 	WireRightIcon.Visible = False															'ukrycie ikony przewodu łączącego telefon z adapterem
 	WireLeftIcon.Visible = False															'ukrycie ikony przewodu łączącego adapter z robotem
@@ -408,11 +409,10 @@ Private Sub BluetoothEvent_DataAck
 				SendRowIndex = 0																		'ustawienie indexu wiersza na 0
 				OldBlend = ""																			'czyszczenie informacji o miksowaniu ruchów
 				ProgressDialogHide																		'zamknięcie okna postępu wysyłania
-				Bluetooth.InfoWindow("Dane wyłane poprawnie.")											'wyświetlanie okna informacyjnego o poprawnym zakończeniu wysyłania
-				StopJobButton.Enable																	'odblokowanie przycisku
+				Bluetooth.InfoWindow("Dane wysłane poprawnie.")											'wyświetlanie okna informacyjnego o poprawnym zakończeniu wysyłania
 				RunJobButton.Enable																		'odblokowanie przycisku
-				BackButton.Enable																		'odblokowanie przycisku
-				SendTaskSequenceButton.Enable															'odblokowanie przycisku
+				BackButton.Disable																		'zablokowanie przycisku powrotu do parametrów
+				SendTaskSequenceButton.Disable															'zablokowanie przycisku wysyłania danych
 			End If
 		Else																							'jeśli tabela nie zawiera żadnych danych, to:
 			Bluetooth.WarningWindow("Brak danych do wysłania.")											'wyświetl okno ostrzegające o braku danych do wysłania
@@ -435,10 +435,8 @@ Private Sub BluetoothEvent_DataAck
 				Bluetooth.InfoWindow("Dane wyłane poprawnie.")											'wyświetlanie okna informacyjnego o poprawnym zakończeniu wysyłania
 				SendTaskSequenceIndex = 0																'zerowanie indexu wierszy sekwencji zadań
 				IsTaskSequenceSending = False															'zerowanie flagi inicjującej wysyłania sekwencji zadań
-				StopJobButton.Enable																	'odblokowanie przycisku
 				RunJobButton.Enable																		'odblokowanie przycisku
-				BackButton.Enable																		'odblokowanie przycisku
-				SendTaskSequenceButton.Enable															'odblokowanie przycisku
+				SendTaskSequenceButton.Disable															'zablokowanie przycisku
 			End If
 		Else																							'jeśli tabela nie zawiera żadnych danych, to:
 			Bluetooth.WarningWindow("Brak danych do wysłania.")											'wyświetl okno ostrzegające o braku danych do wysłania
@@ -463,6 +461,7 @@ Private Sub BluetoothEvent_DriverConnected
 	ProgressDialogHide																		'ukrycie okna postępu podłączania
 	Bluetooth.InfoWindow("Sterownik podłączony.")											'wyświetlenie okna informującego o nawiązaniu połaczenia ze sterownikiem
 	WireLeftIcon.Visible = True																'wyświetlenie ikony przewodu łączącego adapter z robotem
+	TimeoutConnectionTimer.Enabled = False													'zablokowanie timera pilnującego czsu nawiązania połączenia ze sterownikiem
 	
 End Sub
 
@@ -482,8 +481,7 @@ Private Sub BluetoothEvent_RunAck
 	IsWorkInProgress = True																		'potwierdzenie uruchomienia robota
 	IsRunCommandSending = False																	'wysyłanie komendy startu zakończone
 	Bluetooth.InfoWindow("Robot został uruchomiony")											'wyświetl okno z informacją o uruchomieniu robota
-	StopJobButton.Enable																		'odblokowanie przycisku																			'odblokowanie przycisku
-	BackButton.Enable																			'odblokowanie przycisku
+	StopJobButton.Enable																		'odblokowanie przycisku		
 	
 End Sub
 
@@ -492,8 +490,7 @@ Private Sub BluetoothEvent_StopAck
 	IsWorkInProgress = False																	'potwierdzenie zatrzymania robota
 	IsStopCommandSending = False																'zakończenie wysyłania komendy stopu
 	Bluetooth.InfoWindow("Robot został zatrzymany")												'wyświetl okno z informacją o zatrzymaniu robota
-	StopJobButton.Enable																		'odblokowanie przycisku
-	RunJobButton.Enable																			'odblokowanie przycisku
+	StopJobButton.Disable																		'zablokowanie przycisku
 	BackButton.Enable																			'odblokowanie przycisku
 	SendTaskSequenceButton.Enable																'odblokowanie przycisku
 	
@@ -521,7 +518,7 @@ Private Sub BluetoothEvent_DriverNotReady
 	End If
 	
 	If IsRunCommandSending Then																	'jeśli wysłano komende startu, to:
-		Bluetooth.ErrorWindow("Błąd wysyłania komendy ueuchomienia !")							'wyświetl komunikat błędu
+		Bluetooth.ErrorWindow("Błąd wysyłania komendy uruchomienia !")							'wyświetl komunikat błędu
 	End If
 	
 	If IsStopCommandSending Then																'jeśli wysłano komendę stopu, to:
@@ -561,7 +558,9 @@ Private Sub ShowJobScreen
 	SendTaskSequenceButton.SetImage(LoadBitmap(File.DirAssets, "SendIcon.png"))					'wstawienie ikony do przycisku wysyłania sekwencji zadań
 	RunJobButton.SetImage(LoadBitmap(File.DirAssets, "RunJob.png"))								'wstawienie ikony do przycisku uruchamiającego pracęrobota
 	StopJobButton.SetImage(LoadBitmap(File.DirAssets, "StopJob.png"))							'wstawienie ikony do przycisku zatrzymującego pracę robota
-	TaskSequenceListView.Color = Colors.DarkGray
+	TaskSequenceListView.Color = Colors.DarkGray												'ustawienie koloru tłalisty zadań
+	RunJobButton.Disable																		'zablokowanie przycisku uruchamiającego robota
+	StopJobButton.Disable																		'zablokowanie przycisku zatrzymującego robota
 	
 End Sub
 
@@ -615,7 +614,6 @@ Private Sub InsertTaskSequenceToListView
 	
 End Sub
 
-
 Private Sub TaskSequenceListView_ItemLongClick (Position As Int, Value As Object)
 	
 	Dim Del As Object = xui.Msgbox2Async("Usunąć wpis ?", "JOB", "Tak", "", "Nie", LoadBitmap(File.DirAssets, "Question.png"))		'wyświetl okno potwierdzenia usunięcia sekwencji zadań
@@ -626,7 +624,6 @@ Private Sub TaskSequenceListView_ItemLongClick (Position As Int, Value As Object
 	End If
 	
 End Sub
-
 
 Private Sub SendTaskSequenceButton_Click
 	
@@ -640,7 +637,6 @@ Private Sub SendTaskSequenceButton_Click
 	ProgressDialogShow("Wysyłanie danych do sterownika...")										'okno postępu wysyłania
 	
 End Sub
-
 
 Private Sub BackButton_Click
 	
@@ -691,3 +687,7 @@ Private Sub ShowListButton_Click
 	ShowJobScreen
 	
 End Sub
+
+'Private Sub ImageButton1_Click
+'	ToastMessageShow("Zostałem kliknięty !!", True)
+'End Sub
