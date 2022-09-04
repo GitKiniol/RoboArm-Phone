@@ -268,7 +268,9 @@ End Sub
 
 Private Sub InsertAngleToDataGrid(AxisLeter As String)
 	
+	Log("Dim AngleFromLabel As Int")
 	Dim AngleFromLabel As Int
+	Log("Dim AxisDir As Int")
 	Dim AxisDir As Int
 	
 	For Each ViewElement In Activity.GetAllViewsRecursive										'przeszukaj wszystkie elementy na ekranie

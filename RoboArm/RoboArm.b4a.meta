@@ -16,6 +16,6 @@ ModuleClosedNodes2=2,3,4,5,7,8,9,10,11,12
 ModuleClosedNodes3=
 ModuleClosedNodes4=1
 ModuleClosedNodes5=1,2
-NavigationStack=Main,BackButton_Click,589,1,Main,TaskSequenceListView_ItemLongClick,571,6,Main,ShowJobScreen,505,0,Wizualny projektant,TaskScreen.bal,-100,6,Main,AxisCheckBox_CheckedChange,326,0,Main,ShowListButton_Click,641,0,Main,Globals,88,0,Main,ShowTaskScreen,184,6,Main,CreateTaskSequence,543,0,Main,SwitchScreenTimer_Tick,122,0
+NavigationStack=Main,TaskSequenceListView_ItemLongClick,571,6,Main,ShowJobScreen,505,0,Main,AxisCheckBox_CheckedChange,326,0,Main,ShowListButton_Click,641,0,Main,ShowTaskScreen,184,6,Main,CreateTaskSequence,543,0,Main,SwitchScreenTimer_Tick,122,0,Main,InsertAngleToDataGrid,206,6,Wizualny projektant,TaskScreen.bal,-100,6,Main,Globals,88,0
 SelectedBuild=0
 VisibleModules=4,2,1,5
