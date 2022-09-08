@@ -63,7 +63,7 @@ Module5=USART
 NumberOfFiles=25
 NumberOfLibraries=4
 NumberOfModules=5
-Version=11.2
+Version=11.8
 @EndOfDesignText@
 #Region  Project Attributes 
 	#ApplicationLabel: RoboArm
@@ -331,18 +331,6 @@ End Sub
 
 
 
-'Private Sub AddToTaskSequenceButton_Click
-'	
-'	CreateTaskSequence																			'utworzenie sekwencji zadań
-'	
-'End Sub
-
-'Private Sub JobScreenButton_Click
-'	
-'	ShowJobScreen																				'wyświetl eran JobScreen
-'	
-'End Sub
-
 
 Private Sub AxisSeekBar_ValueChanged (Value As Int, UserChanged As Boolean)
 	
@@ -355,7 +343,11 @@ Private Sub AxisSeekBar_ValueChanged (Value As Int, UserChanged As Boolean)
 		If ViewElement Is SeekBar Then															'jeśli badany element jest typu SeekBar to:
 			Dim sb = ViewElement As SeekBar														'zapisz ten element w zmiennej
 			If sb.Tag == "sbv" & AxisName Then													'jesli tag elementu zgadza się z tagiem sendera to:
-				AxisValue = sb.Value + (-90)													'oblicz kąt
+				If AxisName == "G" Or AxisName == "T" Then
+					AxisValue = sb.Value														'oblicz kąt dla osi opartych o servo
+				Else
+					AxisValue = sb.Value + (-90)												'oblicz kąt dla osi opartych o silnik krokowy
+				End If
 			End If
 		End If
 	Next
@@ -403,6 +395,21 @@ Private Sub SpeedSeekBar_ValueChanged (Value As Int, UserChanged As Boolean)
 	AxisMovesDataGrid.SetItemValue("C", "Speed", Value)											'wtawienie prędkości osi C  Do tabeli
 	AxisMovesDataGrid.SetItemValue("G", "Speed", Value)											'wtawienie prędkości osi G  Do tabeli
 	AxisMovesDataGrid.SetItemValue("T", "Speed", Value)											'wtawienie prędkości osi T Do tabeli
+	
+End Sub
+
+Private Sub AddToSeqenceButton_Click
+	
+	CreateTaskSequence																		'generowanie elementu lity zadań
+	ShowListButton.Enabled = True															'odblokowanie przycisku przełączającego na ekran JOB
+	ToastMessageShow("Zadanie dodane do listy", False)										'komunikat o dodaniu zadania do listy
+	
+End Sub
+
+
+Private Sub ShowListButton_Click
+	
+	ShowJobScreen																			'przełączenie na ekran JOB
 	
 End Sub
 
@@ -691,17 +698,3 @@ End Sub
 #End Region
 
 
-
-Private Sub AddToSeqenceButton_Click
-	
-	CreateTaskSequence																		'generowanie elementu lity zadań
-	ShowListButton.Enabled = True															'odblokowanie przycisku przełączającego na ekran JOB
-	
-End Sub
-
-
-Private Sub ShowListButton_Click
-	
-	ShowJobScreen																			'przełączenie na ekran JOB
-	
-End Sub

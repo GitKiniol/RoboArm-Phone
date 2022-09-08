@@ -1,0 +1,34 @@
+--release
+--output
+C:\Users\rybka\Documents\Projekty Elektroniczne\Oprogramowanie\Telefon\RoboArm\Objects
+--lib
+C:\Android\platforms\android-30\android.jar
+C:\Android\tools\..\extras\b4a_local\unpacked-b4ashared-63792611270000\dex_v1\b4ashared.zip
+C:\Android\tools\..\extras\b4a_local\unpacked-core-63792611270000\dex_v1\core.zip
+C:\Android\tools\..\extras\b4a_local\unpacked-serial-63792611270000\dex_v1\serial.zip
+C:\Android\tools\..\extras\b4a_local\unpacked-xui-63792611270000\dex_v1\xui.zip
+C:\Android\tools\..\extras\b4a_local\unpacked-randomaccessfile-63792611270000\dex_v1\randomaccessfile.zip
+C:\Android\tools\..\extras\b4a_local\unpacked-remotelogger-63792611270000\dex_v1\remotelogger.zip
+C:\Users\rybka\Documents\Projekty Elektroniczne\Oprogramowanie\Telefon\RoboArm\Objects\dexed\b4a\example\asyncstreamstext.dex
+C:\Users\rybka\Documents\Projekty Elektroniczne\Oprogramowanie\Telefon\RoboArm\Objects\dexed\b4a\example\datagridview.dex
+C:\Users\rybka\Documents\Projekty Elektroniczne\Oprogramowanie\Telefon\RoboArm\Objects\dexed\b4a\example\imagebutton.dex
+C:\Users\rybka\Documents\Projekty Elektroniczne\Oprogramowanie\Telefon\RoboArm\Objects\dexed\b4a\example\main$1.dex
+C:\Users\rybka\Documents\Projekty Elektroniczne\Oprogramowanie\Telefon\RoboArm\Objects\dexed\b4a\example\main$B4AMenuItemsClickListener.dex
+C:\Users\rybka\Documents\Projekty Elektroniczne\Oprogramowanie\Telefon\RoboArm\Objects\dexed\b4a\example\main$HandleKeyDelayed.dex
+C:\Users\rybka\Documents\Projekty Elektroniczne\Oprogramowanie\Telefon\RoboArm\Objects\dexed\b4a\example\main$ResumableSub_TaskSequenceListView_ItemLongClick.dex
+C:\Users\rybka\Documents\Projekty Elektroniczne\Oprogramowanie\Telefon\RoboArm\Objects\dexed\b4a\example\main$ResumeMessage.dex
+C:\Users\rybka\Documents\Projekty Elektroniczne\Oprogramowanie\Telefon\RoboArm\Objects\dexed\b4a\example\main$WaitForLayout.dex
+C:\Users\rybka\Documents\Projekty Elektroniczne\Oprogramowanie\Telefon\RoboArm\Objects\dexed\b4a\example\main.dex
+C:\Users\rybka\Documents\Projekty Elektroniczne\Oprogramowanie\Telefon\RoboArm\Objects\dexed\b4a\example\R$drawable.dex
+C:\Users\rybka\Documents\Projekty Elektroniczne\Oprogramowanie\Telefon\RoboArm\Objects\dexed\b4a\example\R$style.dex
+C:\Users\rybka\Documents\Projekty Elektroniczne\Oprogramowanie\Telefon\RoboArm\Objects\dexed\b4a\example\R.dex
+C:\Users\rybka\Documents\Projekty Elektroniczne\Oprogramowanie\Telefon\RoboArm\Objects\dexed\b4a\example\starter$1.dex
+C:\Users\rybka\Documents\Projekty Elektroniczne\Oprogramowanie\Telefon\RoboArm\Objects\dexed\b4a\example\starter$2.dex
+C:\Users\rybka\Documents\Projekty Elektroniczne\Oprogramowanie\Telefon\RoboArm\Objects\dexed\b4a\example\starter$starter_BR.dex
+C:\Users\rybka\Documents\Projekty Elektroniczne\Oprogramowanie\Telefon\RoboArm\Objects\dexed\b4a\example\starter.dex
+C:\Users\rybka\Documents\Projekty Elektroniczne\Oprogramowanie\Telefon\RoboArm\Objects\dexed\b4a\example\usart$_device.dex
+C:\Users\rybka\Documents\Projekty Elektroniczne\Oprogramowanie\Telefon\RoboArm\Objects\dexed\b4a\example\usart.dex
+C:\Users\rybka\Documents\Projekty Elektroniczne\Oprogramowanie\Telefon\RoboArm\Objects\dexed\b4a\example\designerscripts\LS_connectscreen.dex
+C:\Users\rybka\Documents\Projekty Elektroniczne\Oprogramowanie\Telefon\RoboArm\Objects\dexed\b4a\example\designerscripts\LS_jobscreen.dex
+C:\Users\rybka\Documents\Projekty Elektroniczne\Oprogramowanie\Telefon\RoboArm\Objects\dexed\b4a\example\designerscripts\LS_splashscreen.dex
+C:\Users\rybka\Documents\Projekty Elektroniczne\Oprogramowanie\Telefon\RoboArm\Objects\dexed\b4a\example\designerscripts\LS_taskscreen.dex
