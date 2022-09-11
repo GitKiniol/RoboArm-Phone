@@ -84,10 +84,15 @@ Sub Process_Globals
 	'These global variables will be declared once when the application starts.
 	'These variables can be accessed from all modules.
 	Private xui As XUI
-	Private Bluetooth As USART																'bluetooth
-	Private AutoSwitchScreenTimer As Timer													'timer odlicza czas trwania splash screena i przełacza na ekran nawiązywania połączenia
-	Private TimeoutConnectionTimer As Timer														'timer określa czas oczekiwania na odpowiedź sterownika
-	
+	Private Bluetooth As USART												'bluetooth
+	Private AutoSwitchScreenTimer As Timer									'timer odlicza czas trwania splash screena i przełacza na ekran nawiązywania połączenia
+	Private TimeoutConnectionTimer As Timer									'timer określa czas oczekiwania na odpowiedź sterownika
+	Private AxisAPosition As Int											'aktualna pozucja osi A
+	Private AxisBPosition As Int											'aktualna pozucja osi B
+	Private AxisCPosition As Int											'aktualna pozucja osi C
+	Private AxisZPosition As Int											'aktualna pozucja osi Z
+	Private AxisGPosition As Int											'aktualna pozucja osi G
+	Private AxisTPosition As Int											'aktualna pozucja osi T
 End Sub
 
 Sub Globals
@@ -163,6 +168,13 @@ Sub Activity_Create(FirstTime As Boolean)
 	AutoSwitchScreenTimer.Enabled = True													'uruchomienie timera
 	Activity.LoadLayout("SplashScreen")														'ekran powitalny
 	
+	AxisAPosition = 220																		'pozycja startowa osi A
+	AxisBPosition = 304																		'pozycja startowa osi B
+	AxisCPosition = 226																		'pozycja startowa osi C
+	AxisZPosition = 180																		'pozycja startowa osi Z
+	AxisGPosition = 0																		'pozycja startowa osi G
+	AxisTPosition = 0																		'pozycja startowa osi T
+	
 End Sub
 
 Sub Activity_Resume
@@ -187,7 +199,7 @@ Sub SwitchScreenTimer_Tick
 	
 	DriverConnectButton.Disable																'zablokowanie przycisku "PodłączSterownik"
 	DriverDisConnectButton.Disable															'zablokowanie przycisku "OdłączSterownik"
-	TaskSetupButton.Disable																	'zablokowanie przycisku "Ekran Parametrów"
+	TaskSetupButton.Enable																	'zablokowanie przycisku "Ekran Parametrów"
 	BtAdapterIcon.Visible = False															'ukrycie ikony adaptera
 	WireRightIcon.Visible = False															'ukrycie ikony przewodu łączącego telefon z adapterem
 	WireLeftIcon.Visible = False															'ukrycie ikony przewodu łączącego adapter z robotem
@@ -250,6 +262,19 @@ Private Sub ShowTaskScreen
 		ShowListButton.Enabled = True														'odblokowanie przycisku przełączającego na ekran JOB
 	End If
 	AddToSeqenceButton.Enabled = False														'blokowanie przycisku dodawania elementów do listy
+	
+	AxisASeekBar.Value = AxisAPosition														'ustawienie suwaka na wartość aktualnej pozycji osi A
+	InsertAngleToLabel(AxisAPosition - 113, "A")											'wskawienie wartości do labelki
+	AxisBSeekBar.Value = AxisBPosition														'ustawienie suwaka na wartość aktualnej pozycji osi B
+	InsertAngleToLabel(AxisBPosition - 152, "B")											'wskawienie wartości do labelki
+	AxisCSeekBar.Value = AxisCPosition														'ustawienie suwaka na wartość aktualnej pozycji osi C
+	InsertAngleToLabel(AxisCPosition - 110, "C")											'wskawienie wartości do labelki
+	AxisZSeekBar.Value = AxisZPosition														'ustawienie suwaka na wartość aktualnej pozycji osi Z
+	InsertAngleToLabel(AxisZPosition - 90, "Z")												'wskawienie wartości do labelki
+	AxisGSeekBar.Value = AxisGPosition														'ustawienie suwaka na wartość aktualnej pozycji osi G
+	InsertAngleToLabel(AxisGPosition, "G")													'wskawienie wartości do labelki
+	AxisTSeekBar.Value = AxisTPosition														'ustawienie suwaka na wartość aktualnej pozycji osi T
+	InsertAngleToLabel(AxisTPosition, "T")													'wskawienie wartości do labelki
 	
 End Sub
 
@@ -334,26 +359,43 @@ End Sub
 
 Private Sub AxisSeekBar_ValueChanged (Value As Int, UserChanged As Boolean)
 	
-	Dim AxisSeekBar = Sender As SeekBar															'obiekt wywołujący zdarzenie
-	Dim AxisName = AxisSeekBar.Tag As String													'litera osi pobrana z tagu
-	AxisName = AxisName.SubString(3)
-	Dim AxisValue As Int																		'wartość suwaka kąta osi
+	If UserChanged == True Then
+		Dim AxisSeekBar = Sender As SeekBar											'obiekt wywołujący zdarzenie
+		Dim AxisName = AxisSeekBar.Tag As String									'litera osi pobrana z tagu
+		AxisName = AxisName.SubString(3)
+		Dim AxisValue As Int														'wartość suwaka kąta osi
 	
-	For Each ViewElement In Activity.GetAllViewsRecursive										'przeszukaj wszystkie elementy na ekranie
-		If ViewElement Is SeekBar Then															'jeśli badany element jest typu SeekBar to:
-			Dim sb = ViewElement As SeekBar														'zapisz ten element w zmiennej
-			If sb.Tag == "sbv" & AxisName Then													'jesli tag elementu zgadza się z tagiem sendera to:
-				If AxisName == "G" Or AxisName == "T" Then
-					AxisValue = sb.Value														'oblicz kąt dla osi opartych o servo
-				Else
-					AxisValue = sb.Value + (-90)												'oblicz kąt dla osi opartych o silnik krokowy
+		For Each ViewElement In Activity.GetAllViewsRecursive						'przeszukaj wszystkie elementy na ekranie
+			If ViewElement Is SeekBar Then											'jeśli badany element jest typu SeekBar to:
+				Dim sb = ViewElement As SeekBar										'zapisz ten element w zmiennej
+				If sb == AxisSeekBar Then
+					Select AxisName
+						Case "A"
+							AxisValue = sb.Value + (-113)							'oblicz wartość dla osi A
+							AxisAPosition = AxisValue								'zapamiętanie aktualnej pozycji
+						Case "B"
+							AxisValue = sb.Value + (-152)							'oblicz wartość dla osi B
+							AxisBPosition = AxisValue								'zapamiętanie aktualnej pozycji
+						Case "C"
+							AxisValue = sb.Value + (-110)							'oblicz wartość dla osi C
+							AxisCPosition = AxisValue								'zapamiętanie aktualnej pozycji
+						Case "Z"
+							AxisValue = sb.Value + (-90)							'oblicz wartość dla osi Z
+							AxisZPosition = AxisValue								'zapamiętanie aktualnej pozycji
+						Case "G"
+							AxisValue = sb.Value									'wartość dla osi chwytaka G
+							AxisGPosition = AxisValue								'zapamiętanie aktualnej pozycji
+						Case "T"
+							AxisValue = sb.Value									'wartość dla osi chwytaka T
+							AxisTPosition = AxisValue								'zapamiętanie aktualnej pozycji
+					End Select
 				End If
 			End If
-		End If
-	Next
+		Next
 	
-	InsertAngleToLabel(AxisValue, AxisName)														'wstawienie wartości kąta do odpowiedniej labelki
-	InsertAngleToDataGrid(AxisName)																'wstawianie kąta osi do tabeli
+		InsertAngleToLabel(AxisValue, AxisName)										'wstawienie wartości kąta do odpowiedniej labelki
+		InsertAngleToDataGrid(AxisName)												'wstawianie kąta osi do tabeli
+	End If
 	
 End Sub
 
