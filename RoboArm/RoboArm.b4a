@@ -284,6 +284,14 @@ Private Sub InsertAngleToLabel(Angle As String, AxisLeter As String)
 	
 End Sub
 
+Private Sub InsertRangeInfoToLabel(Axis As SeekBar)
+	
+	Dim AxisName = Axis.Tag As String
+	AxisName = AxisName.SubString(3)
+	
+	
+End Sub
+
 Private Sub InsertAngleToDataGrid(AxisLeter As String)
 	
 	Log("Dim AngleFromLabel As Int")
