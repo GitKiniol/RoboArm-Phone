@@ -187,7 +187,7 @@ Sub SwitchScreenTimer_Tick
 	
 	DriverConnectButton.Disable																'zablokowanie przycisku "PodłączSterownik"
 	DriverDisConnectButton.Disable															'zablokowanie przycisku "OdłączSterownik"
-	TaskSetupButton.Disable																	'zablokowanie przycisku "Ekran Parametrów"
+	TaskSetupButton.Enable																	'zablokowanie przycisku "Ekran Parametrów"
 	BtAdapterIcon.Visible = False															'ukrycie ikony adaptera
 	WireRightIcon.Visible = False															'ukrycie ikony przewodu łączącego telefon z adapterem
 	WireLeftIcon.Visible = False															'ukrycie ikony przewodu łączącego adapter z robotem
@@ -331,26 +331,37 @@ End Sub
 
 Private Sub AxisSeekBar_ValueChanged (Value As Int, UserChanged As Boolean)
 	
-	Dim AxisSeekBar = Sender As SeekBar															'obiekt wywołujący zdarzenie
-	Dim AxisName = AxisSeekBar.Tag As String													'litera osi pobrana z tagu
-	AxisName = AxisName.SubString(3)
-	Dim AxisValue As Int																		'wartość suwaka kąta osi
+	If UserChanged == True Then
+		Dim AxisSeekBar = Sender As SeekBar											'obiekt wywołujący zdarzenie
+		Dim AxisName = AxisSeekBar.Tag As String									'litera osi pobrana z tagu
+		AxisName = AxisName.SubString(3)
+		Dim AxisValue As Int														'wartość suwaka kąta osi
 	
-	For Each ViewElement In Activity.GetAllViewsRecursive										'przeszukaj wszystkie elementy na ekranie
-		If ViewElement Is SeekBar Then															'jeśli badany element jest typu SeekBar to:
-			Dim sb = ViewElement As SeekBar														'zapisz ten element w zmiennej
-			If sb.Tag == "sbv" & AxisName Then													'jesli tag elementu zgadza się z tagiem sendera to:
-				If AxisName == "G" Or AxisName == "T" Then
-					AxisValue = sb.Value														'oblicz kąt dla osi opartych o servo
-				Else
-					AxisValue = sb.Value + (-90)												'oblicz kąt dla osi opartych o silnik krokowy
+		For Each ViewElement In Activity.GetAllViewsRecursive						'przeszukaj wszystkie elementy na ekranie
+			If ViewElement Is SeekBar Then											'jeśli badany element jest typu SeekBar to:
+				Dim sb = ViewElement As SeekBar										'zapisz ten element w zmiennej
+				If sb == AxisSeekBar Then											'jeśli aktualnie sprawdzny alement to ten który wywołał to zdarzenie to:
+					Select AxisName
+						Case "A"
+							AxisValue = sb.Value + (-113)							'oblicz wartość dla osi A
+						Case "B"
+							AxisValue = sb.Value + (-152)							'oblicz wartość dla osi B
+						Case "C"
+							AxisValue = sb.Value + (-110)							'oblicz wartość dla osi C
+						Case "Z"
+							AxisValue = sb.Value + (-90)							'oblicz wartość dla osi Z
+						Case "G"
+							AxisValue = sb.Value									'wartość dla osi chwytaka G
+						Case "T"
+							AxisValue = sb.Value									'wartość dla osi chwytaka T
+					End Select
 				End If
 			End If
-		End If
-	Next
+		Next
 	
-	InsertAngleToLabel(AxisValue, AxisName)														'wstawienie wartości kąta do odpowiedniej labelki
-	InsertAngleToDataGrid(AxisName)																'wstawianie kąta osi do tabeli
+		InsertAngleToLabel(AxisValue, AxisName)										'wstawienie wartości kąta do odpowiedniej labelki
+		InsertAngleToDataGrid(AxisName)												'wstawianie kąta osi do tabeli
+	End If																'wstawianie kąta osi do tabeli
 	
 End Sub
 
