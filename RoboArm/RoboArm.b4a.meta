@@ -16,6 +16,6 @@ ModuleClosedNodes2=2,3,4,5,7,8,9,10,11,12
 ModuleClosedNodes3=
 ModuleClosedNodes4=1
 ModuleClosedNodes5=1,2
-NavigationStack=Wizualny projektant,JobScreen.bal,-100,1,Main,AxisSeekBar_ValueChanged,291,6,Wizualny projektant,TaskScreen.bal,-100,6,Main,SwitchScreenTimer_Tick,110,0,Main,SendTask,265,0,Main,RunJobButton_Click,617,0,Main,SpeedSeekBar_ValueChanged,333,0,Main,ShowListButton_Click,345,0,Main,AddToSeqenceButton_Click,337,6,Main,Globals,25,0
+NavigationStack=Main,AxisSeekBar_ValueChanged,291,6,Main,SwitchScreenTimer_Tick,110,0,Main,RunJobButton_Click,617,0,Main,SpeedSeekBar_ValueChanged,333,0,Main,ShowListButton_Click,345,0,Main,AddToSeqenceButton_Click,337,6,Main,Globals,25,0,Wizualny projektant,TaskScreen.bal,-100,6,Main,Process_Globals,15,0,Main,SendTask,263,0
 SelectedBuild=0
 VisibleModules=4,2,1,5

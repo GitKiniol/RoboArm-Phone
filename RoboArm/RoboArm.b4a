@@ -329,9 +329,6 @@ Private Sub SendTask(DataTable As Map) As String
 	
 End Sub
 
-
-
-
 Private Sub AxisSeekBar_ValueChanged (Value As Int, UserChanged As Boolean)
 	
 	Dim AxisSeekBar = Sender As SeekBar															'obiekt wywołujący zdarzenie
