@@ -154,6 +154,24 @@ Sub Globals
 	
 	Private AddToSeqenceButton As Button
 	Private ShowListButton As Button
+	Private AxisAActPosLabel As Label
+	Private AxisALeftRangeLabel As Label
+	Private AxisARightRangeLabel As Label
+	Private AxisBActPosLabel As Label
+	Private AxisBLeftRangeLabel As Label
+	Private AxisBRightRangeLabel As Label
+	Private AxisCActPosLabel As Label
+	Private AxisCLeftRangeLabel As Label
+	Private AxisCRightRangeLabel As Label
+	Private AxisGActPosLabel As Label
+	Private AxisGLeftRangeLabel As Label
+	Private AxisGRightRangeLabel As Label
+	Private AxisTActPosLabel As Label
+	Private AxisTLeftRangeLabel As Label
+	Private AxisTRightRangeLabel As Label
+	Private AxisZActPosLabel As Label
+	Private AxisZLeftRangeLabel As Label
+	Private AxisZRightRangeLabel As Label
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
