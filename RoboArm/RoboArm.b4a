@@ -612,7 +612,6 @@ Private Sub BluetoothEvent_StopAck
 	IsStopCommandSending = False																'zakończenie wysyłania komendy stopu
 	Bluetooth.InfoWindow("Robot został zatrzymany")												'wyświetl okno z informacją o zatrzymaniu robota
 	StopJobButton.Disable																		'zablokowanie przycisku
-	BackButton.Enable																			'odblokowanie przycisku
 	SendTaskSequenceButton.Enable																'odblokowanie przycisku
 	
 End Sub
@@ -623,6 +622,7 @@ Private Sub BluetoothEvent_WorkDone
 	Bluetooth.InfoWindow("Robot zakończył działanie")											'wyświetl okno informaceyjne o zakończeniu pracy
 	RunJobButton.Enable																			'odblokowanie przycisku
 	SendTaskSequenceButton.Enable																'odblokowanie przycisku
+	BackButton.Enable																			'odblokowanie przycisku
 	
 End Sub
 
