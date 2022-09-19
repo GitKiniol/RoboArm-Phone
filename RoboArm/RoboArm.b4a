@@ -56,14 +56,15 @@ Library3=xui
 Library4=randomaccessfile
 ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: https://www.b4x.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="14" android:targetSdkVersion="29"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~CreateResourceFromFile(Macro, Themes.LightTheme)~\n~'End of default text.~\n~
 Module1=AsyncStreamsText
-Module2=DataGridView
-Module3=ImageButton
-Module4=Starter
-Module5=USART
+Module2=AxisParameters
+Module3=DataGridView
+Module4=ImageButton
+Module5=Starter
+Module6=USART
 NumberOfFiles=25
 NumberOfLibraries=4
-NumberOfModules=5
-Version=11.8
+NumberOfModules=6
+Version=11.2
 @EndOfDesignText@
 #Region  Project Attributes 
 	#ApplicationLabel: RoboArm
@@ -172,6 +173,17 @@ Sub Globals
 	Private AxisZActPosLabel As Label
 	Private AxisZLeftRangeLabel As Label
 	Private AxisZRightRangeLabel As Label
+	
+	Private new_ As Int
+	Private old_ As Int
+	
+	Private ParametersAxisZ As AxisParameters
+	Private ParametersAxisA As AxisParameters
+	Private ParametersAxisB As AxisParameters
+	Private ParametersAxisC As AxisParameters
+	Private ParametersAxisG As AxisParameters
+	Private ParametersAxisT As AxisParameters
+	
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
@@ -180,6 +192,13 @@ Sub Activity_Create(FirstTime As Boolean)
 	AutoSwitchScreenTimer.Initialize("SwitchScreenTimer", 1000)								'incjalizacja timera prełączającego SplashScreen na ConnectScreen
 	AutoSwitchScreenTimer.Enabled = True													'uruchomienie timera
 	Activity.LoadLayout("SplashScreen")														'ekran powitalny
+	
+	ParametersAxisA.Initialize(226, 0, -113, 0, 226, 0)
+	ParametersAxisB.Initialize(0, 304, 152, 0, 304, 0)
+	ParametersAxisC.Initialize(220, 0, -110, 0, 220, 0)
+	ParametersAxisG.Initialize(90, 0, 0, 0, 90, 0)
+	ParametersAxisT.Initialize(90, 0, 0, 0, 90, 0)
+	ParametersAxisZ.Initialize(90, 90, 0, 0, 180, 0)
 	
 End Sub
 
@@ -269,6 +288,19 @@ Private Sub ShowTaskScreen
 	End If
 	AddToSeqenceButton.Enabled = False														'blokowanie przycisku dodawania elementów do listy
 	
+	AxisAActPosLabel.Text = ParametersAxisA.ActualPosition
+	AxisASeekBar.Value = (AxisASeekBar.Max / 2) + ParametersAxisA.ActualPosition
+	AxisBActPosLabel.Text = ParametersAxisB.ActualPosition
+	AxisBSeekBar.Value = (AxisBSeekBar.Max / 2) + ParametersAxisB.ActualPosition
+	AxisCActPosLabel.Text = ParametersAxisC.ActualPosition
+	AxisCSeekBar.Value = (AxisCSeekBar.Max / 2) + ParametersAxisC.ActualPosition
+	AxisGActPosLabel.Text = ParametersAxisG.ActualPosition
+	AxisGSeekBar.Value = ParametersAxisG.ActualPosition
+	AxisTActPosLabel.Text = ParametersAxisT.ActualPosition
+	AxisTSeekBar.Value = ParametersAxisT.ActualPosition
+	AxisZActPosLabel.Text = ParametersAxisZ.ActualPosition
+	AxisZSeekBar.Value = (AxisZSeekBar.Max / 2) + ParametersAxisZ.ActualPosition
+	
 End Sub
 
 Private Sub InsertAngleToLabel(Angle As String, AxisLeter As String)
@@ -281,14 +313,6 @@ Private Sub InsertAngleToLabel(Angle As String, AxisLeter As String)
 			End If
 		End If
 	Next
-	
-End Sub
-
-Private Sub InsertRangeInfoToLabel(Axis As SeekBar)
-	
-	Dim AxisName = Axis.Tag As String
-	AxisName = AxisName.SubString(3)
-	
 	
 End Sub
 
@@ -355,23 +379,81 @@ Private Sub SendTask(DataTable As Map) As String
 	
 End Sub
 
+Private Sub SeekBarDelta(value As Int) As Int
+	
+	new_ = value
+	If new_ > old_ Then
+		old_ = new_
+		Return 1
+	Else
+		If new_ == old_ Then
+			old_ = new_
+			Return 0
+		Else
+			old_ = new_
+			Return -1
+		End If
+	End If
+
+End Sub
+
+Private Sub InsertRangeInfoToLabel(Axis As SeekBar)
+	
+	Dim AxisName = Axis.Tag As String
+	AxisName = AxisName.SubString(3)
+	
+	
+End Sub
+
 Private Sub AxisSeekBar_ValueChanged (Value As Int, UserChanged As Boolean)
 	
+	
 	If UserChanged == True Then
+		
 		Dim AxisSeekBar = Sender As SeekBar								'obiekt wywołujący zdarzenie
-		Dim AxisName = AxisSeekBar.Tag As String						'litera osi pobrana z tagu
-		AxisName = AxisName.SubString(3)
-		Dim AxisValue As Int											'wartość suwaka kąta osi
+		Dim AxisName = AxisSeekBar.Tag As String						'odczyt tagu 
+		AxisName = AxisName.SubString(3)								'pobranie litery określającej oś
 		
-		If AxisName == "G" Or AxisName == "T" Then
-			AxisValue = Value
-		Else
-			AxisValue = Value - (AxisSeekBar.Max / 2)
-		End If
-		
-		InsertAngleToLabel(AxisValue, AxisName)							'wstawienie wartości kąta do odpowiedniej labelki
-		InsertAngleToDataGrid(AxisName)									'wstawianie kąta osi do tabeli
-	End If																'wstawianie kąta osi do tabeli
+		Select AxisName
+			Case "A"
+				ParametersAxisA.RangeCalculate(Value)
+				AxisALeftRangeLabel.Text = ParametersAxisA.CCW_Travel
+				AxisARightRangeLabel.Text = ParametersAxisA.CW_Travel
+				AxisAValue.Text = ParametersAxisA.TravelToGoCalculate(Value, False)
+				InsertAngleToDataGrid("A")													'wstawianie kąta osi do tabeli
+			Case "B"
+				ParametersAxisB.RangeCalculate(Value)
+				AxisBLeftRangeLabel.Text = ParametersAxisB.CCW_Travel
+				AxisBRightRangeLabel.Text = ParametersAxisB.CW_Travel
+				AxisBValue.Text = ParametersAxisB.TravelToGoCalculate(Value, False)
+				InsertAngleToDataGrid("B")													'wstawianie kąta osi do tabeli
+			Case "C"
+				ParametersAxisC.RangeCalculate(Value)
+				AxisCLeftRangeLabel.Text = ParametersAxisC.CCW_Travel
+				AxisCRightRangeLabel.Text = ParametersAxisC.CW_Travel
+				AxisCValue.Text = ParametersAxisC.TravelToGoCalculate(Value, False)
+				InsertAngleToDataGrid("C")													'wstawianie kąta osi do tabeli
+			Case "G"
+				ParametersAxisG.RangeCalculate(Value)
+				AxisGLeftRangeLabel.Text = ParametersAxisG.CCW_Travel
+				AxisGRightRangeLabel.Text = ParametersAxisG.CW_Travel
+				AxisGValue.Text = ParametersAxisG.TravelToGoCalculate(Value, True)
+				InsertAngleToDataGrid("G")													'wstawianie kąta osi do tabeli
+			Case "T"
+				ParametersAxisT.RangeCalculate(Value)
+				AxisTLeftRangeLabel.Text = ParametersAxisT.CCW_Travel
+				AxisTRightRangeLabel.Text = ParametersAxisT.CW_Travel
+				AxisTValue.Text = ParametersAxisT.TravelToGoCalculate(Value, True)
+				InsertAngleToDataGrid("T")													'wstawianie kąta osi do tabeli
+			Case "Z"
+				ParametersAxisZ.RangeCalculate(Value)
+				AxisZLeftRangeLabel.Text = ParametersAxisZ.CCW_Travel
+				AxisZRightRangeLabel.Text = ParametersAxisZ.CW_Travel
+				AxisZValue.Text = ParametersAxisZ.TravelToGoCalculate(Value, False)
+				InsertAngleToDataGrid("Z")													'wstawianie kąta osi do tabeli
+		End Select
+'		
+	End If
 	
 End Sub
 
