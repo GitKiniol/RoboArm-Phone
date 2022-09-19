@@ -37,16 +37,16 @@ Public Sub RangeCalculate(Value As Int)
 	
 	CW_Travel = MaxTravel - Value
 	CCW_Travel = Value
-	'ActualPosition = Value - (MaxTravel / 2)
 	
 End Sub
 
 Public Sub TravelToGoCalculate(Value As Int, RotaryAxis As Boolean) As Int
 	
 	If RotaryAxis == True Then
-		Return Value
+		TravelToGo = Value															'obliczanie kąta dla osi servo
 	Else
-		Return  (Value - (MaxTravel / 2)) - ActualPosition
+		TravelToGo = (Value - (MaxTravel / 2)) - ActualPosition						'obliczanie konta obrotu dla osi rotacyjnej
 	End If
+	Return TravelToGo
 	
 End Sub

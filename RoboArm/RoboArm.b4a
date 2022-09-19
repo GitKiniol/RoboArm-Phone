@@ -184,6 +184,8 @@ Sub Globals
 	Private ParametersAxisG As AxisParameters
 	Private ParametersAxisT As AxisParameters
 	
+	Private ParameterList As List									'lista parametrów osi których pozycja się zmieniła
+	
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
@@ -193,12 +195,14 @@ Sub Activity_Create(FirstTime As Boolean)
 	AutoSwitchScreenTimer.Enabled = True													'uruchomienie timera
 	Activity.LoadLayout("SplashScreen")														'ekran powitalny
 	
-	ParametersAxisA.Initialize(226, 0, -113, 0, 226, 0)
-	ParametersAxisB.Initialize(0, 304, 152, 0, 304, 0)
-	ParametersAxisC.Initialize(220, 0, -110, 0, 220, 0)
-	ParametersAxisG.Initialize(90, 0, 0, 0, 90, 0)
-	ParametersAxisT.Initialize(90, 0, 0, 0, 90, 0)
-	ParametersAxisZ.Initialize(90, 90, 0, 0, 180, 0)
+	ParametersAxisA.Initialize(226, 0, -113, 0, 226, 0)										'inicjalizacja parametrów osi A
+	ParametersAxisB.Initialize(0, 304, 152, 0, 304, 0)										'inicjalizacja parametrów osi B
+	ParametersAxisC.Initialize(220, 0, -110, 0, 220, 0)										'inicjalizacja parametrów osi C
+	ParametersAxisG.Initialize(90, 0, 0, 0, 90, 0)											'inicjalizacja parametrów osi G
+	ParametersAxisT.Initialize(90, 0, 0, 0, 90, 0)											'inicjalizacja parametrów osi T
+	ParametersAxisZ.Initialize(90, 90, 0, 0, 180, 0)										'inicjalizacja parametrów osi Z
+	
+	ParameterList.Initialize																'inicjalizacja listy parametrów
 	
 End Sub
 
@@ -344,6 +348,29 @@ Private Sub InsertAngleToDataGrid(AxisLeter As String)
 	
 End Sub
 
+Private Sub FillParameterList(AxisName As String)
+	Select AxisName
+		Case "Oś A"
+			'ParametersAxisA.ActualPosition = ParametersAxisA.ActualPosition + ParametersAxisA.TravelToGo
+			ParameterList.Add(ParametersAxisA)
+		Case "Oś B"
+			'ParametersAxisB.ActualPosition = ParametersAxisB.ActualPosition + ParametersAxisB.TravelToGo
+			ParameterList.Add(ParametersAxisB)
+		Case "Oś C"
+			'ParametersAxisC.ActualPosition = ParametersAxisC.ActualPosition + ParametersAxisC.TravelToGo
+			ParameterList.Add(ParametersAxisC)
+		Case "Oś G"
+			'ParametersAxisG.ActualPosition = ParametersAxisG.ActualPosition + ParametersAxisG.TravelToGo
+			ParameterList.Add(ParametersAxisG)
+		Case "Oś T"
+			'ParametersAxisT.ActualPosition = ParametersAxisT.ActualPosition + ParametersAxisT.TravelToGo
+			ParameterList.Add(ParametersAxisT)
+		Case "Oś Z"
+			'ParametersAxisZ.ActualPosition = ParametersAxisZ.ActualPosition + ParametersAxisZ.TravelToGo
+			ParameterList.Add(ParametersAxisZ)
+	End Select
+End Sub
+
 Private Sub SendTask(DataTable As Map) As String
 	
 	Dim Row As Map																					'dane wiersza tabeli
@@ -375,6 +402,8 @@ Private Sub SendTask(DataTable As Map) As String
 		Log("Send ETASK")
 		Bluetooth.SendWorkFrame("ETASK", Row)
 	End If
+	
+	FillParameterList(Row.Get("Name"))
 	Return Blend
 	
 End Sub
@@ -791,6 +820,13 @@ Private Sub RunJobButton_Click
 	If IsWorkInProgress == False Then															'jeśli robot jest w spoczynku, to:
 		IsRunCommandSending = True																'informacja że została wysyłana komenda start
 		Bluetooth.SendRunFrame																	'wysłanie komendy start
+		
+		'zmiana parametrów osi zajdujących się na liście "ParameterList"
+		For i = 0 To ParameterList.Size - 1
+			'lista parametrów powinna chyba być w formie "Map"
+			Dim Parameter = ParameterList.Get(i) As AxisParameters
+			Parameter.ActualPosition = Parameter.ActualPosition + Parameter.TravelToGo
+		Next
 	End If
 	
 End Sub
