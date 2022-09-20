@@ -50,3 +50,16 @@ Public Sub TravelToGoCalculate(Value As Int, RotaryAxis As Boolean) As Int
 	Return TravelToGo
 	
 End Sub
+
+Public Sub ActualPositionCalculate
+	
+	ActualPosition = ActualPosition + TravelToGo									'obliczanie nowej pozycji aktualnej
+	If ActualPosition > (MaxTravel / 2) Then										'jeśli pozycja przekracza zakres, to:
+		ActualPosition = MaxTravel / 2												'ustaw pozycje na maksymalną
+	End If
+	If ActualPosition < ((MaxTravel / 2) * (-1)) Then								'jeśli pozycja przekracza zakres, to:
+		ActualPosition = ((MaxTravel / 2) * (-1))									'ustaw pozycje na minimalną
+	End If
+	TravelToGo = 0
+	
+End Sub

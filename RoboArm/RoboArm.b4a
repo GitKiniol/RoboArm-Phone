@@ -174,17 +174,12 @@ Sub Globals
 	Private AxisZLeftRangeLabel As Label
 	Private AxisZRightRangeLabel As Label
 	
-	Private new_ As Int
-	Private old_ As Int
-	
 	Private ParametersAxisZ As AxisParameters
 	Private ParametersAxisA As AxisParameters
 	Private ParametersAxisB As AxisParameters
 	Private ParametersAxisC As AxisParameters
 	Private ParametersAxisG As AxisParameters
 	Private ParametersAxisT As AxisParameters
-	
-	Private ParameterList As List									'lista parametrów osi których pozycja się zmieniła
 	
 End Sub
 
@@ -201,8 +196,6 @@ Sub Activity_Create(FirstTime As Boolean)
 	ParametersAxisG.Initialize(90, 0, 0, 0, 90, 0)											'inicjalizacja parametrów osi G
 	ParametersAxisT.Initialize(90, 0, 0, 0, 90, 0)											'inicjalizacja parametrów osi T
 	ParametersAxisZ.Initialize(90, 90, 0, 0, 180, 0)										'inicjalizacja parametrów osi Z
-	
-	ParameterList.Initialize																'inicjalizacja listy parametrów
 	
 End Sub
 
@@ -305,18 +298,29 @@ Private Sub ShowTaskScreen
 	AxisZActPosLabel.Text = ParametersAxisZ.ActualPosition
 	AxisZSeekBar.Value = (AxisZSeekBar.Max / 2) + ParametersAxisZ.ActualPosition
 	
-End Sub
-
-Private Sub InsertAngleToLabel(Angle As String, AxisLeter As String)
+	ParametersAxisA.RangeCalculate(AxisASeekBar.Value)
+	AxisALeftRangeLabel.Text = ParametersAxisA.CCW_Travel
+	AxisARightRangeLabel.Text = ParametersAxisA.CW_Travel
 	
-	For Each ViewElement In Activity.GetAllViewsRecursive										'przeszukaj wszystkie elementy na ekranie
-		If ViewElement Is Label Then															'jeśli badany element jest typu Label to:
-			Dim lv = ViewElement As Label														'zapisz ten element w zmiennej
-			If lv.Tag == "lv" & AxisLeter Then													'jesli tag elementu zgadza się z tagiem sendera to:
-				lv.Text = Angle & "°"															'wpisz wartość kąta do labelki
-			End If
-		End If
-	Next
+	ParametersAxisB.RangeCalculate(AxisBSeekBar.Value)
+	AxisBLeftRangeLabel.Text = ParametersAxisB.CCW_Travel
+	AxisBRightRangeLabel.Text = ParametersAxisB.CW_Travel
+	
+	ParametersAxisC.RangeCalculate(AxisCSeekBar.Value)
+	AxisCLeftRangeLabel.Text = ParametersAxisC.CCW_Travel
+	AxisCRightRangeLabel.Text = ParametersAxisC.CW_Travel
+	
+	ParametersAxisG.RangeCalculate(AxisGSeekBar.Value)
+	AxisGLeftRangeLabel.Text = ParametersAxisG.CCW_Travel
+	AxisGRightRangeLabel.Text = ParametersAxisG.CW_Travel
+	
+	ParametersAxisT.RangeCalculate(AxisTSeekBar.Value)
+	AxisTLeftRangeLabel.Text = ParametersAxisT.CCW_Travel
+	AxisTRightRangeLabel.Text = ParametersAxisT.CW_Travel
+	
+	ParametersAxisZ.RangeCalculate(AxisZSeekBar.Value)
+	AxisZLeftRangeLabel.Text = ParametersAxisZ.CCW_Travel
+	AxisZRightRangeLabel.Text = ParametersAxisZ.CW_Travel
 	
 End Sub
 
@@ -348,27 +352,53 @@ Private Sub InsertAngleToDataGrid(AxisLeter As String)
 	
 End Sub
 
-Private Sub FillParameterList(AxisName As String)
+Private Sub CalculatePosition(AxisName As String, Direction As Int, Angle As Int)
+	
 	Select AxisName
 		Case "Oś A"
-			'ParametersAxisA.ActualPosition = ParametersAxisA.ActualPosition + ParametersAxisA.TravelToGo
-			ParameterList.Add(ParametersAxisA)
+			If Direction == 1 Then
+				ParametersAxisA.TravelToGo = Angle * (-1)
+			Else
+				ParametersAxisA.TravelToGo = Angle
+			End If
+			ParametersAxisA.ActualPositionCalculate
 		Case "Oś B"
-			'ParametersAxisB.ActualPosition = ParametersAxisB.ActualPosition + ParametersAxisB.TravelToGo
-			ParameterList.Add(ParametersAxisB)
+			If Direction == 1 Then
+				ParametersAxisB.TravelToGo = Angle * (-1)
+			Else
+				ParametersAxisB.TravelToGo = Angle
+			End If
+			ParametersAxisB.ActualPositionCalculate
 		Case "Oś C"
-			'ParametersAxisC.ActualPosition = ParametersAxisC.ActualPosition + ParametersAxisC.TravelToGo
-			ParameterList.Add(ParametersAxisC)
+			If Direction == 1 Then
+				ParametersAxisC.TravelToGo = Angle * (-1)
+			Else
+				ParametersAxisC.TravelToGo = Angle
+			End If
+			ParametersAxisC.ActualPositionCalculate
 		Case "Oś G"
-			'ParametersAxisG.ActualPosition = ParametersAxisG.ActualPosition + ParametersAxisG.TravelToGo
-			ParameterList.Add(ParametersAxisG)
+			If Direction == 1 Then
+				ParametersAxisG.TravelToGo = Angle * (-1)
+			Else
+				ParametersAxisG.TravelToGo = Angle
+			End If
+			ParametersAxisG.ActualPositionCalculate
 		Case "Oś T"
-			'ParametersAxisT.ActualPosition = ParametersAxisT.ActualPosition + ParametersAxisT.TravelToGo
-			ParameterList.Add(ParametersAxisT)
+			If Direction == 1 Then
+				ParametersAxisT.TravelToGo = Angle * (-1)
+			Else
+				ParametersAxisT.TravelToGo = Angle
+			End If
+			ParametersAxisT.ActualPositionCalculate
 		Case "Oś Z"
-			'ParametersAxisZ.ActualPosition = ParametersAxisZ.ActualPosition + ParametersAxisZ.TravelToGo
-			ParameterList.Add(ParametersAxisZ)
+			If Direction == 1 Then
+				ParametersAxisZ.TravelToGo = Angle * (-1)
+			Else
+				ParametersAxisZ.TravelToGo = Angle
+			End If
+			ParametersAxisZ.ActualPositionCalculate
 	End Select
+	
 End Sub
 
 Private Sub SendTask(DataTable As Map) As String
@@ -403,34 +433,8 @@ Private Sub SendTask(DataTable As Map) As String
 		Bluetooth.SendWorkFrame("ETASK", Row)
 	End If
 	
-	FillParameterList(Row.Get("Name"))
+	CalculatePosition(Row.Get("Name"), Row.Get("Dir"), Row.Get("Angle"))
 	Return Blend
-	
-End Sub
-
-Private Sub SeekBarDelta(value As Int) As Int
-	
-	new_ = value
-	If new_ > old_ Then
-		old_ = new_
-		Return 1
-	Else
-		If new_ == old_ Then
-			old_ = new_
-			Return 0
-		Else
-			old_ = new_
-			Return -1
-		End If
-	End If
-
-End Sub
-
-Private Sub InsertRangeInfoToLabel(Axis As SeekBar)
-	
-	Dim AxisName = Axis.Tag As String
-	AxisName = AxisName.SubString(3)
-	
 	
 End Sub
 
@@ -534,7 +538,6 @@ Private Sub AddToSeqenceButton_Click
 	ToastMessageShow("Zadanie dodane do listy", False)										'komunikat o dodaniu zadania do listy
 	
 End Sub
-
 
 Private Sub ShowListButton_Click
 	
@@ -786,6 +789,7 @@ Private Sub SendTaskSequenceButton_Click
 	BackButton.Disable																			'zablokowanie przycisku
 	SendTaskSequenceButton.Disable																'zablokowanie przycisku
 	
+	
 	IsTaskSequenceSending = True																'zainicjowano wysyłanie danych
 	Bluetooth.SendStatusFrame("1")																'wysłanie rządania podania statusu(inicjowanie komunikacji)
 	ProgressDialogShow("Wysyłanie danych do sterownika...")										'okno postępu wysyłania
@@ -802,7 +806,7 @@ Private Sub StopJobButton_Click
 	 
 	StopJobButton.Disable																		'zablokowanie przycisku
 	RunJobButton.Disable																		'zablokowanie przycisku
-	BackButton.Disable																			'zablokowanie przycisku
+	BackButton.Enable																			'zablokowanie przycisku
 	SendTaskSequenceButton.Disable																'zablokowanie przycisku
 	
 	IsStopCommandSending = True																	'informacja że została wysłana komenda stop
@@ -820,13 +824,7 @@ Private Sub RunJobButton_Click
 	If IsWorkInProgress == False Then															'jeśli robot jest w spoczynku, to:
 		IsRunCommandSending = True																'informacja że została wysyłana komenda start
 		Bluetooth.SendRunFrame																	'wysłanie komendy start
-		
-		'zmiana parametrów osi zajdujących się na liście "ParameterList"
-		For i = 0 To ParameterList.Size - 1
-			'lista parametrów powinna chyba być w formie "Map"
-			Dim Parameter = ParameterList.Get(i) As AxisParameters
-			Parameter.ActualPosition = Parameter.ActualPosition + Parameter.TravelToGo
-		Next
+
 	End If
 	
 End Sub
