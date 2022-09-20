@@ -19,6 +19,6 @@ ModuleClosedNodes3=1,2,3,4,5,7,8,9,10,11,12
 ModuleClosedNodes4=
 ModuleClosedNodes5=1
 ModuleClosedNodes6=1,2
-NavigationStack=AxisParameters,ActualPositionCalculate,54,6,Main,InsertAngleToDataGrid,298,0,Main,ShowTaskScreen,256,0,Main,CreateTaskSequence,683,0,Main,ShowListButton_Click,480,0,Main,BluetoothEvent_DriverNotReady,631,0,Main,RunJobButton_Click,729,0,Main,SendTaskSequenceButton_Click,729,4,Main,InsertTaskSequenceToListView,687,2
+NavigationStack=AxisParameters,ActualPositionCalculate,54,6,Main,InsertAngleToDataGrid,298,0,Main,ShowTaskScreen,256,0,Main,CreateTaskSequence,683,0,Main,ShowListButton_Click,480,0,Main,BluetoothEvent_DriverNotReady,631,0,Main,RunJobButton_Click,729,0,Main,SendTaskSequenceButton_Click,729,4,Main,Globals,25,0,Main,InsertTaskSequenceToListView,687,2
 SelectedBuild=0
 VisibleModules=5,3,6,2

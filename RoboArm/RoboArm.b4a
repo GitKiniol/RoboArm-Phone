@@ -753,7 +753,7 @@ End Sub
 
 Private Sub InsertTaskSequenceToListView
 	
-	For i = TaskSequence.Size - 1 To 0 step -1													'iteracja po liście sekwencji zadań
+	For i = 0 To TaskSequence.Size - 1													'iteracja po liście sekwencji zadań
 		Dim TaskSequenceName = TaskSequence.GetKeyAt(i) As String								'pobranie nazwy sekwencji zadań
 		Dim TaskNames = " " As String															'zmienna zawierać będzie nazwy osi w aktualnej sekwencji zadań
 		Dim Task = TaskSequence.Get(TaskSequenceName) As Map									'pobranie zadania z listy sekwencji zadań
