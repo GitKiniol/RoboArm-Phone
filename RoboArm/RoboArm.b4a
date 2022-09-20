@@ -753,7 +753,7 @@ End Sub
 
 Private Sub InsertTaskSequenceToListView
 	
-	For i = 0 To TaskSequence.Size - 1													'iteracja po liście sekwencji zadań
+	For i = TaskSequence.Size - 1 To 0 step -1 													'iteracja po liście sekwencji zadań
 		Dim TaskSequenceName = TaskSequence.GetKeyAt(i) As String								'pobranie nazwy sekwencji zadań
 		Dim TaskNames = " " As String															'zmienna zawierać będzie nazwy osi w aktualnej sekwencji zadań
 		Dim Task = TaskSequence.Get(TaskSequenceName) As Map									'pobranie zadania z listy sekwencji zadań
@@ -811,6 +811,23 @@ Private Sub RunJobButton_Click
 	
 End Sub
 
+Private Sub BackButton_Click
+	
+	ShowTaskScreen
+	
+End Sub
+
+Private Sub StopJobButton_Click
+	 
+	StopJobButton.Disable																		'zablokowanie przycisku
+	RunJobButton.Disable																		'zablokowanie przycisku
+	'BackButton.Disable																			'zablokowanie przycisku
+	SendTaskSequenceButton.Disable																'zablokowanie przycisku
+	
+	IsStopCommandSending = True																	'informacja że została wysłana komenda stop
+	Bluetooth.SendStopFrame																		'wysłanie komendy stop
+	
+End Sub
 #End Region
 
 
