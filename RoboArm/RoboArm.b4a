@@ -64,7 +64,7 @@ Module6=USART
 NumberOfFiles=25
 NumberOfLibraries=4
 NumberOfModules=6
-Version=11.2
+Version=11.8
 @EndOfDesignText@
 #Region  Project Attributes 
 	#ApplicationLabel: RoboArm
@@ -189,6 +189,12 @@ Sub Activity_Create(FirstTime As Boolean)
 	AutoSwitchScreenTimer.Initialize("SwitchScreenTimer", 1000)								'incjalizacja timera prełączającego SplashScreen na ConnectScreen
 	AutoSwitchScreenTimer.Enabled = True													'uruchomienie timera
 	Activity.LoadLayout("SplashScreen")														'ekran powitalny
+	
+	ResetPosition
+	
+End Sub
+
+Sub ResetPosition
 	
 	ParametersAxisA.Initialize(50, 0, -25, 0, 50, 0)										'inicjalizacja parametrów osi A
 	ParametersAxisB.Initialize(0, 304, 152, 0, 304, 0)										'inicjalizacja parametrów osi B
@@ -645,6 +651,7 @@ Private Sub BluetoothEvent_StopAck
 	Bluetooth.InfoWindow("Robot został zatrzymany")												'wyświetl okno z informacją o zatrzymaniu robota
 	StopJobButton.Disable																		'zablokowanie przycisku
 	SendTaskSequenceButton.Enable																'odblokowanie przycisku
+	ResetPosition
 	
 End Sub
 
