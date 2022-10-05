@@ -64,7 +64,7 @@ Module6=USART
 NumberOfFiles=25
 NumberOfLibraries=4
 NumberOfModules=6
-Version=11.8
+Version=11.2
 @EndOfDesignText@
 #Region  Project Attributes 
 	#ApplicationLabel: RoboArm
@@ -181,6 +181,7 @@ Sub Globals
 	Private ParametersAxisG As AxisParameters
 	Private ParametersAxisT As AxisParameters
 	
+	Private ResetPositionButton As Button
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
@@ -291,42 +292,7 @@ Private Sub ShowTaskScreen
 	End If
 	AddToSeqenceButton.Enabled = False														'blokowanie przycisku dodawania elementów do listy
 	
-	AxisAActPosLabel.Text = ParametersAxisA.ActualPosition
-	AxisASeekBar.Value = (AxisASeekBar.Max / 2) + ParametersAxisA.ActualPosition
-	AxisBActPosLabel.Text = ParametersAxisB.ActualPosition
-	AxisBSeekBar.Value = (AxisBSeekBar.Max / 2) + ParametersAxisB.ActualPosition
-	AxisCActPosLabel.Text = ParametersAxisC.ActualPosition
-	AxisCSeekBar.Value = (AxisCSeekBar.Max / 2) + ParametersAxisC.ActualPosition
-	AxisGActPosLabel.Text = ParametersAxisG.ActualPosition
-	AxisGSeekBar.Value = ParametersAxisG.ActualPosition
-	AxisTActPosLabel.Text = ParametersAxisT.ActualPosition
-	AxisTSeekBar.Value = ParametersAxisT.ActualPosition
-	AxisZActPosLabel.Text = ParametersAxisZ.ActualPosition
-	AxisZSeekBar.Value = (AxisZSeekBar.Max / 2) + ParametersAxisZ.ActualPosition
-	
-	ParametersAxisA.RangeCalculate(AxisASeekBar.Value)
-	AxisALeftRangeLabel.Text = ParametersAxisA.CCW_Travel
-	AxisARightRangeLabel.Text = ParametersAxisA.CW_Travel
-	
-	ParametersAxisB.RangeCalculate(AxisBSeekBar.Value)
-	AxisBLeftRangeLabel.Text = ParametersAxisB.CCW_Travel
-	AxisBRightRangeLabel.Text = ParametersAxisB.CW_Travel
-	
-	ParametersAxisC.RangeCalculate(AxisCSeekBar.Value)
-	AxisCLeftRangeLabel.Text = ParametersAxisC.CCW_Travel
-	AxisCRightRangeLabel.Text = ParametersAxisC.CW_Travel
-	
-	ParametersAxisG.RangeCalculate(AxisGSeekBar.Value)
-	AxisGLeftRangeLabel.Text = ParametersAxisG.CCW_Travel
-	AxisGRightRangeLabel.Text = ParametersAxisG.CW_Travel
-	
-	ParametersAxisT.RangeCalculate(AxisTSeekBar.Value)
-	AxisTLeftRangeLabel.Text = ParametersAxisT.CCW_Travel
-	AxisTRightRangeLabel.Text = ParametersAxisT.CW_Travel
-	
-	ParametersAxisZ.RangeCalculate(AxisZSeekBar.Value)
-	AxisZLeftRangeLabel.Text = ParametersAxisZ.CCW_Travel
-	AxisZRightRangeLabel.Text = ParametersAxisZ.CW_Travel
+	RefreshPositionLabels																	'odświeżenie zawartości labelek z wartościami pozycji
 	
 End Sub
 
@@ -358,52 +324,102 @@ Private Sub InsertAngleToDataGrid(AxisLeter As String)
 	
 End Sub
 
-Private Sub CalculatePosition(AxisName As String, Direction As Int, Angle As Int)
+Private Sub CalculatePosition
 	
-	Select AxisName
-		Case "Oś A"
-			If Direction == 1 Then
-				ParametersAxisA.TravelToGo = Angle * (-1)
-			Else
-				ParametersAxisA.TravelToGo = Angle
-			End If
-			ParametersAxisA.ActualPositionCalculate
-		Case "Oś B"
-			If Direction == 1 Then
-				ParametersAxisB.TravelToGo = Angle * (-1)
-			Else
-				ParametersAxisB.TravelToGo = Angle
-			End If
-			ParametersAxisB.ActualPositionCalculate
-		Case "Oś C"
-			If Direction == 1 Then
-				ParametersAxisC.TravelToGo = Angle * (-1)
-			Else
-				ParametersAxisC.TravelToGo = Angle
-			End If
-			ParametersAxisC.ActualPositionCalculate
-		Case "Oś G"
-			If Direction == 1 Then
-				ParametersAxisG.TravelToGo = Angle * (-1)
-			Else
-				ParametersAxisG.TravelToGo = Angle
-			End If
-			ParametersAxisG.ActualPositionCalculate
-		Case "Oś T"
-			If Direction == 1 Then
-				ParametersAxisT.TravelToGo = Angle * (-1)
-			Else
-				ParametersAxisT.TravelToGo = Angle
-			End If
-			ParametersAxisT.ActualPositionCalculate
-		Case "Oś Z"
-			If Direction == 1 Then
-				ParametersAxisZ.TravelToGo = Angle * (-1)
-			Else
-				ParametersAxisZ.TravelToGo = Angle
-			End If
-			ParametersAxisZ.ActualPositionCalculate
-	End Select
+	Dim Row As Map
+	Row = AxisMovesDataGrid.GetTable
+	For Each Key In Row.Keys
+		Dim MovesData = Row.Get(Key) As Map
+		Dim AxisName = MovesData.Get("Name") As String
+		Dim Direction = MovesData.Get("Dir") As Int
+		Dim Angle = MovesData.Get("Angle") As Int
+	
+		Select AxisName
+			Case "Oś A"
+				If Direction == 1 Then
+					ParametersAxisA.TravelToGo = Angle * (-1)
+				Else
+					ParametersAxisA.TravelToGo = Angle
+				End If
+				ParametersAxisA.ActualPositionCalculate
+			Case "Oś B"
+				If Direction == 1 Then
+					ParametersAxisB.TravelToGo = Angle * (-1)
+				Else
+					ParametersAxisB.TravelToGo = Angle
+				End If
+				ParametersAxisB.ActualPositionCalculate
+			Case "Oś C"
+				If Direction == 1 Then
+					ParametersAxisC.TravelToGo = Angle * (-1)
+				Else
+					ParametersAxisC.TravelToGo = Angle
+				End If
+				ParametersAxisC.ActualPositionCalculate
+			Case "Oś G"
+				If Direction == 1 Then
+					ParametersAxisG.TravelToGo = Angle * (-1)
+				Else
+					ParametersAxisG.TravelToGo = Angle
+				End If
+				ParametersAxisG.ActualPositionCalculate
+			Case "Oś T"
+				If Direction == 1 Then
+					ParametersAxisT.TravelToGo = Angle * (-1)
+				Else
+					ParametersAxisT.TravelToGo = Angle
+				End If
+				ParametersAxisT.ActualPositionCalculate
+			Case "Oś Z"
+				If Direction == 1 Then
+					ParametersAxisZ.TravelToGo = Angle * (-1)
+				Else
+					ParametersAxisZ.TravelToGo = Angle
+				End If
+				ParametersAxisZ.ActualPositionCalculate
+		End Select
+	Next
+	
+End Sub
+
+Private Sub RefreshPositionLabels
+	'ustawienie wartości suwaków i labelek pozycji zadanej
+	AxisAActPosLabel.Text = ParametersAxisA.ActualPosition & "°"
+	AxisASeekBar.Value = (AxisASeekBar.Max / 2) + ParametersAxisA.ActualPosition
+	AxisBActPosLabel.Text = ParametersAxisB.ActualPosition & "°"
+	AxisBSeekBar.Value = (AxisBSeekBar.Max / 2) + ParametersAxisB.ActualPosition
+	AxisCActPosLabel.Text = ParametersAxisC.ActualPosition & "°"
+	AxisCSeekBar.Value = (AxisCSeekBar.Max / 2) + ParametersAxisC.ActualPosition
+	AxisGActPosLabel.Text = ParametersAxisG.ActualPosition & "°"
+	AxisGSeekBar.Value = ParametersAxisG.ActualPosition
+	AxisTActPosLabel.Text = ParametersAxisT.ActualPosition & "°"
+	AxisTSeekBar.Value = ParametersAxisT.ActualPosition
+	AxisZActPosLabel.Text = ParametersAxisZ.ActualPosition & "°"
+	AxisZSeekBar.Value = (AxisZSeekBar.Max / 2) + ParametersAxisZ.ActualPosition
+	'obliczenie zakresu ruchu osi A i wstawienie wartości do labelek
+	ParametersAxisA.RangeCalculate(AxisASeekBar.Value)
+	AxisALeftRangeLabel.Text = ParametersAxisA.CCW_Travel & "°"
+	AxisARightRangeLabel.Text = ParametersAxisA.CW_Travel & "°"
+	'obliczenie zakresu ruchu osi B i wstawienie wartości do labelek
+	ParametersAxisB.RangeCalculate(AxisBSeekBar.Value)
+	AxisBLeftRangeLabel.Text = ParametersAxisB.CCW_Travel & "°"
+	AxisBRightRangeLabel.Text = ParametersAxisB.CW_Travel & "°"
+	'obliczenie zakresu ruchu osi C i wstawienie wartości do labelek
+	ParametersAxisC.RangeCalculate(AxisCSeekBar.Value)
+	AxisCLeftRangeLabel.Text = ParametersAxisC.CCW_Travel & "°"
+	AxisCRightRangeLabel.Text = ParametersAxisC.CW_Travel & "°"
+	'obliczenie zakresu ruchu osi G i wstawienie wartości do labelek
+	ParametersAxisG.RangeCalculate(AxisGSeekBar.Value)
+	AxisGLeftRangeLabel.Text = ParametersAxisG.CCW_Travel & "°"
+	AxisGRightRangeLabel.Text = ParametersAxisG.CW_Travel & "°"
+	'obliczenie zakresu ruchu osi T i wstawienie wartości do labelek
+	ParametersAxisT.RangeCalculate(AxisTSeekBar.Value)
+	AxisTLeftRangeLabel.Text = ParametersAxisT.CCW_Travel & "°"
+	AxisTRightRangeLabel.Text = ParametersAxisT.CW_Travel & "°"
+	'obliczenie zakresu ruchu osi Z i wstawienie wartości do labelek
+	ParametersAxisZ.RangeCalculate(AxisZSeekBar.Value)
+	AxisZLeftRangeLabel.Text = ParametersAxisZ.CCW_Travel & "°"
+	AxisZRightRangeLabel.Text = ParametersAxisZ.CW_Travel & "°"
 	
 End Sub
 
@@ -438,8 +454,6 @@ Private Sub SendTask(DataTable As Map) As String
 		Log("Send ETASK")
 		Bluetooth.SendWorkFrame("ETASK", Row)
 	End If
-	
-	CalculatePosition(Row.Get("Name"), Row.Get("Dir"), Row.Get("Angle"))
 	Return Blend
 	
 End Sub
@@ -456,39 +470,39 @@ Private Sub AxisSeekBar_ValueChanged (Value As Int, UserChanged As Boolean)
 		Select AxisName
 			Case "A"
 				ParametersAxisA.RangeCalculate(Value)
-				AxisALeftRangeLabel.Text = ParametersAxisA.CCW_Travel
-				AxisARightRangeLabel.Text = ParametersAxisA.CW_Travel
-				AxisAValue.Text = ParametersAxisA.TravelToGoCalculate(Value, False)
+				AxisALeftRangeLabel.Text = ParametersAxisA.CCW_Travel & "°"
+				AxisARightRangeLabel.Text = ParametersAxisA.CW_Travel & "°"
+				AxisAValue.Text = ParametersAxisA.TravelToGoCalculate(Value, False) & "°"
 				InsertAngleToDataGrid("A")													'wstawianie kąta osi do tabeli
 			Case "B"
 				ParametersAxisB.RangeCalculate(Value)
-				AxisBLeftRangeLabel.Text = ParametersAxisB.CCW_Travel
-				AxisBRightRangeLabel.Text = ParametersAxisB.CW_Travel
-				AxisBValue.Text = ParametersAxisB.TravelToGoCalculate(Value, False)
+				AxisBLeftRangeLabel.Text = ParametersAxisB.CCW_Travel & "°"
+				AxisBRightRangeLabel.Text = ParametersAxisB.CW_Travel & "°"
+				AxisBValue.Text = ParametersAxisB.TravelToGoCalculate(Value, False) & "°"
 				InsertAngleToDataGrid("B")													'wstawianie kąta osi do tabeli
 			Case "C"
 				ParametersAxisC.RangeCalculate(Value)
-				AxisCLeftRangeLabel.Text = ParametersAxisC.CCW_Travel
-				AxisCRightRangeLabel.Text = ParametersAxisC.CW_Travel
-				AxisCValue.Text = ParametersAxisC.TravelToGoCalculate(Value, False)
+				AxisCLeftRangeLabel.Text = ParametersAxisC.CCW_Travel & "°"
+				AxisCRightRangeLabel.Text = ParametersAxisC.CW_Travel & "°"
+				AxisCValue.Text = ParametersAxisC.TravelToGoCalculate(Value, False) & "°"
 				InsertAngleToDataGrid("C")													'wstawianie kąta osi do tabeli
 			Case "G"
 				ParametersAxisG.RangeCalculate(Value)
-				AxisGLeftRangeLabel.Text = ParametersAxisG.CCW_Travel
-				AxisGRightRangeLabel.Text = ParametersAxisG.CW_Travel
-				AxisGValue.Text = ParametersAxisG.TravelToGoCalculate(Value, True)
+				AxisGLeftRangeLabel.Text = ParametersAxisG.CCW_Travel & "°"
+				AxisGRightRangeLabel.Text = ParametersAxisG.CW_Travel & "°"
+				AxisGValue.Text = ParametersAxisG.TravelToGoCalculate(Value, True) & "°"
 				InsertAngleToDataGrid("G")													'wstawianie kąta osi do tabeli
 			Case "T"
 				ParametersAxisT.RangeCalculate(Value)
-				AxisTLeftRangeLabel.Text = ParametersAxisT.CCW_Travel
-				AxisTRightRangeLabel.Text = ParametersAxisT.CW_Travel
-				AxisTValue.Text = ParametersAxisT.TravelToGoCalculate(Value, True)
+				AxisTLeftRangeLabel.Text = ParametersAxisT.CCW_Travel & "°"
+				AxisTRightRangeLabel.Text = ParametersAxisT.CW_Travel & "°"
+				AxisTValue.Text = ParametersAxisT.TravelToGoCalculate(Value, True) & "°"
 				InsertAngleToDataGrid("T")													'wstawianie kąta osi do tabeli
 			Case "Z"
 				ParametersAxisZ.RangeCalculate(Value)
-				AxisZLeftRangeLabel.Text = ParametersAxisZ.CCW_Travel
-				AxisZRightRangeLabel.Text = ParametersAxisZ.CW_Travel
-				AxisZValue.Text = ParametersAxisZ.TravelToGoCalculate(Value, False)
+				AxisZLeftRangeLabel.Text = ParametersAxisZ.CCW_Travel & "°"
+				AxisZRightRangeLabel.Text = ParametersAxisZ.CW_Travel & "°"
+				AxisZValue.Text = ParametersAxisZ.TravelToGoCalculate(Value, False) & "°"
 				InsertAngleToDataGrid("Z")													'wstawianie kąta osi do tabeli
 		End Select
 '		
@@ -539,9 +553,30 @@ End Sub
 
 Private Sub AddToSeqenceButton_Click
 	
+	CalculatePosition
 	CreateTaskSequence																		'generowanie elementu lity zadań
 	ShowListButton.Enabled = True															'odblokowanie przycisku przełączającego na ekran JOB
 	ToastMessageShow("Zadanie dodane do listy", False)										'komunikat o dodaniu zadania do listy
+	
+End Sub
+
+Private Sub ResetPositionButton_LongClick
+	
+	ResetPosition
+	RefreshPositionLabels
+	AxisAValue.Text = "0°"
+	AxisBValue.Text = "0°"
+	AxisCValue.Text = "0°"
+	AxisZValue.Text = "0°"
+	AxisGValue.Text = "0°"
+	AxisTValue.Text = "0°"
+	
+	AxisACheckBox.Checked = False
+	AxisBCheckBox.Checked = False
+	AxisCCheckBox.Checked = False
+	AxisZCheckBox.Checked = False
+	AxisGCheckBox.Checked = False
+	AxisTCheckBox.Checked = False
 	
 End Sub
 
@@ -760,7 +795,7 @@ End Sub
 
 Private Sub InsertTaskSequenceToListView
 	
-	For i = TaskSequence.Size - 1 To 0 step -1 													'iteracja po liście sekwencji zadań
+	For i = TaskSequence.Size - 1 To 0 Step -1 													'iteracja po liście sekwencji zadań
 		Dim TaskSequenceName = TaskSequence.GetKeyAt(i) As String								'pobranie nazwy sekwencji zadań
 		Dim TaskNames = " " As String															'zmienna zawierać będzie nazwy osi w aktualnej sekwencji zadań
 		Dim Task = TaskSequence.Get(TaskSequenceName) As Map									'pobranie zadania z listy sekwencji zadań
@@ -836,5 +871,3 @@ Private Sub StopJobButton_Click
 	
 End Sub
 #End Region
-
-
