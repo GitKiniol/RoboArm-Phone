@@ -197,7 +197,7 @@ End Sub
 
 Sub ResetPosition
 	
-	ParametersAxisA.Initialize(50, 0, -25, 0, 50, 0)										'inicjalizacja parametrów osi A
+	ParametersAxisA.Initialize(220, 0, -110, 0, 220, 0)										'inicjalizacja parametrów osi A
 	ParametersAxisB.Initialize(0, 304, 152, 0, 304, 0)										'inicjalizacja parametrów osi B
 	ParametersAxisC.Initialize(220, 0, -110, 0, 220, 0)										'inicjalizacja parametrów osi C
 	ParametersAxisG.Initialize(90, 0, 0, 0, 90, 0)											'inicjalizacja parametrów osi G
